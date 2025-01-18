@@ -28,7 +28,7 @@ AI tools for unbounded creativity.
 ---
 
 ## 🎵 Currently Listening
-![Spotify](https://spotify-github-profile.vercel.app/api/view?uid=your_spotify_uid&cover_image=true&theme=default)
+![Spotify]([https://spotify-github-profile.vercel.app/api/view?uid=your_spotify_uid&cover_image=true&theme=default](https://open.spotify.com/playlist/3kKtLESGtMJGT4XDn6VPVu))
 
 ---
 
