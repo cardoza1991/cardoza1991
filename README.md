@@ -15,6 +15,8 @@ Welcome to my GitHub! I'm Michael (a.k.a. **cardoza1991**) and I specialize in b
 ### 🚀 [AI MVP Generator](https://chatgpt.com/g/g-678b18a3aa7081919ae0a8345ad10cd9-launch-pad-assistant)
 Turn ideas into MVPs in 60 seconds!
 
+### ⛑ [FEMA Zero Trust Advisor](https://chatgpt.com/g/g-b2RKEhfvG-fema-zero-trust-advisor)
+
 ### 🎨 Art as Code
 AI tools for unbounded creativity.
 
