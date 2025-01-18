@@ -17,7 +17,7 @@ Turn ideas into MVPs in 60 seconds!
 
 ### ⛑ [FEMA Zero Trust Advisor](https://chatgpt.com/g/g-b2RKEhfvG-fema-zero-trust-advisor)
 
-### 🎨 Art as Code
+### 🎨 [Art as Code](https://chatgpt.com/g/g-678b1b0c71848191a544118e3474ae3e-art-as-code)
 AI tools for unbounded creativity.
 
 ![Project Demo](./assets/demo.gif)
