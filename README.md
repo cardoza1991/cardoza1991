@@ -39,4 +39,4 @@ AI tools for unbounded creativity.
 ---
 
 [![Portfolio](https://img.shields.io/badge/Portfolio-Visit-brightgreen?style=for-the-badge)](https://cardozaservices.com)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge)](https://linkedin.com/in/michael-cardoza)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge)]([https://www.linkedin.com/in/michael-cardoza-68a440b2?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app])
