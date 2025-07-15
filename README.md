@@ -4,6 +4,14 @@ Welcome to my GitHub! I'm Michael (a.k.a. **cardoza1991**) and I specialize in b
 
 ---
 
+## 🏆 GitHub Trophies
+[![trophy](https://github-profile-trophy.vercel.app/?username=cardoza1991&theme=radical&no-frame=false&no-bg=false&margin-w=4)](https://github.com/ryo-ma/github-profile-trophy)
+
+### 🎖️ Special Achievements
+[![trophy](https://github-profile-trophy.vercel.app/?username=cardoza1991&theme=matrix&column=3&margin-w=15&margin-h=15)](https://github.com/ryo-ma/github-profile-trophy)
+
+---
+
 ## 📊 GitHub Stats
 ![Stats](https://github-readme-stats.vercel.app/api?username=cardoza1991&show_icons=true&theme=radical)
 ![Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=cardoza1991&layout=compact&theme=radical)
