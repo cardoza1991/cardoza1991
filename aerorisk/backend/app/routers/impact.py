@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from ..database import get_db
+from ..services.auth import Identity, current_identity
 from ..services.impact_engine import (
     simulate_supplier_failure, rank_operational_risks,
     QUALIFICATION_DAYS_DEFAULT, GROUNDED_AIRCRAFT_COST_PER_DAY,
@@ -22,7 +23,11 @@ class SimulateRequest(BaseModel):
 
 
 @router.post("/simulate")
-def simulate(req: SimulateRequest, db: Session = Depends(get_db)):
+def simulate(
+    req: SimulateRequest,
+    db: Session = Depends(get_db),
+    identity: Identity = Depends(current_identity),
+):
     """What-if: simulate the full operational ripple of supplier failure.
 
     Also persists the snapshot as an ImpactScenario so it gets a
@@ -36,7 +41,7 @@ def simulate(req: SimulateRequest, db: Session = Depends(get_db)):
     )
     if result is None:
         raise HTTPException(status_code=404, detail=f"Supplier {req.supplier_id} not found")
-    scenario = record_scenario(db, result, trigger="MANUAL")
+    scenario = record_scenario(db, result, trigger="MANUAL", tenant_id=identity.tenant_id)
     db.commit()
     payload = result.as_dict()
     payload["scenario_id"] = scenario.id

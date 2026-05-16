@@ -27,6 +27,16 @@ class Settings(BaseSettings):
     # Set a non-empty base URL so the brief includes a clickable link.
     public_base_url: str = "http://localhost:5173"
 
+    # Auth / tenancy. Defaults preserve the open demo: anonymous requests work
+    # and resolve to the default tenant. Flip `require_auth=true` in any real
+    # deployment to enforce login. JWT secret MUST be overridden in prod.
+    require_auth: bool = False
+    jwt_secret: str = "aerorisk-demo-secret-rotate-in-prod"
+    jwt_algorithm: str = "HS256"
+    jwt_expiry_minutes: int = 60 * 8       # 8 hour session
+    default_tenant_id: int = 1
+    audit_enabled: bool = True
+
     class Config:
         env_file = ".env"
 

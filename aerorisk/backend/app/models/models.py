@@ -19,6 +19,58 @@ class MissionStatus(str, enum.Enum):
     AT_RISK = "AT_RISK"
 
 
+class Tenant(Base):
+    """A customer organization. Every tenant-scoped row carries a tenant_id.
+
+    Demo mode operates against a single default tenant; production
+    deployments create one tenant per customer and enforce isolation via
+    the `require_auth` flag + the tenant_id filters in the routers.
+    """
+    __tablename__ = "tenants"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), unique=True, index=True)
+    slug = Column(String(80), unique=True, index=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+    users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")
+
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), index=True)
+    email = Column(String(200), unique=True, index=True)
+    full_name = Column(String(200))
+    password_hash = Column(String(200))            # bcrypt
+    role = Column(String(40), default="operator")  # admin | operator | viewer
+    is_active = Column(Boolean, default=True)
+    last_login_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+    tenant = relationship("Tenant", back_populates="users")
+
+
+class AuditLog(Base):
+    """Append-only audit trail of mutating actions. Required for any defense
+    deployment going through ATO / FedRAMP / NIST SP 800-53 AU-2 controls."""
+    __tablename__ = "audit_log"
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    user_email = Column(String(200), nullable=True)   # denormalized so deletes don't lose context
+    action = Column(String(80), index=True)           # e.g. "bom.upload", "impact.simulate"
+    resource_type = Column(String(80), nullable=True) # e.g. "BomUpload", "ImpactScenario"
+    resource_id = Column(String(80), nullable=True)
+    method = Column(String(10), nullable=True)
+    path = Column(String(500), nullable=True)
+    status_code = Column(Integer, nullable=True)
+    ip = Column(String(64), nullable=True)
+    user_agent = Column(String(400), nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), index=True)
+
+
 class Aircraft(Base):
     __tablename__ = "aircraft"
     id = Column(Integer, primary_key=True, index=True)
@@ -252,6 +304,7 @@ class ImpactScenario(Base):
     """
     __tablename__ = "impact_scenarios"
     id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=True, index=True)
     supplier_id = Column(Integer, ForeignKey("suppliers.id"), index=True)
     trigger = Column(String(30), index=True)              # AUTO_INTEL | MANUAL | SCHEDULED
     trigger_signal_id = Column(Integer, ForeignKey("supplier_intel_signals.id"), nullable=True)
@@ -278,6 +331,7 @@ class BomUpload(Base):
     """
     __tablename__ = "bom_uploads"
     id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=True, index=True)
     name = Column(String(200))
     source_format = Column(String(20))                    # CYCLONEDX | SPDX | CSV
     target_platform = Column(String(50), nullable=True)   # e.g. "F-35A" — scopes fleet impact
@@ -331,6 +385,7 @@ class NotificationLog(Base):
     """Audit trail for outbound notifications. One row per dispatch attempt."""
     __tablename__ = "notification_logs"
     id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=True, index=True)
     channel = Column(String(30), index=True)              # webhook | slack | console | email
     target = Column(String(500))                          # URL, channel name, address — redacted at display time
     scenario_id = Column(Integer, ForeignKey("impact_scenarios.id"), nullable=True)

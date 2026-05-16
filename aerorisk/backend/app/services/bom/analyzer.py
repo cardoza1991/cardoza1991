@@ -38,10 +38,15 @@ def analyze_bom_upload(
     upload_name: Optional[str] = None,
     target_platform: Optional[str] = None,
     target_tail_number: Optional[str] = None,
+    tenant_id: Optional[int] = None,
 ) -> AnalysisResult:
     """Single entry point. Parses, persists components, enriches, scores."""
+    from ...config import settings
+    if tenant_id is None:
+        tenant_id = settings.default_tenant_id
     fmt, components = parse(filename, raw)
     upload = BomUpload(
+        tenant_id=tenant_id,
         name=upload_name or filename,
         source_format=fmt,
         target_platform=target_platform,

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models.models import BomComponent, BomUpload, Part, Supplier
+from ..services.auth import Identity, current_identity
 from ..services.bom import analyze_bom_upload
 
 router = APIRouter(prefix="/api/bom", tags=["bom"])
@@ -62,6 +63,13 @@ def _serialize_component(c: BomComponent, db: Session) -> dict:
     }
 
 
+def _tenant_or_404(u: BomUpload, identity: Identity) -> None:
+    """Legacy rows with NULL tenant_id stay visible to default tenant; cross-
+    tenant accesses 404 to avoid information leaks."""
+    if u.tenant_id is not None and u.tenant_id != identity.tenant_id:
+        raise HTTPException(404, "BOM upload not found")
+
+
 @router.post("/upload")
 async def upload_bom(
     file: UploadFile = File(...),
@@ -69,6 +77,7 @@ async def upload_bom(
     target_platform: Optional[str] = Form(None),
     target_tail_number: Optional[str] = Form(None),
     db: Session = Depends(get_db),
+    identity: Identity = Depends(current_identity),
 ):
     """Upload an SBOM (CycloneDX JSON or simple CSV). Returns the analysis."""
     raw = await file.read()
@@ -82,6 +91,7 @@ async def upload_bom(
             upload_name=name,
             target_platform=target_platform,
             target_tail_number=target_tail_number,
+            tenant_id=identity.tenant_id,
         )
     except ValueError as e:
         raise HTTPException(400, f"could not parse SBOM: {e}")
@@ -93,9 +103,11 @@ async def upload_bom(
 def list_uploads(
     limit: int = Query(50, le=200),
     db: Session = Depends(get_db),
+    identity: Identity = Depends(current_identity),
 ):
     rows = (
         db.query(BomUpload)
+        .filter((BomUpload.tenant_id == identity.tenant_id) | (BomUpload.tenant_id.is_(None)))
         .order_by(BomUpload.created_at.desc())
         .limit(limit)
         .all()
@@ -104,18 +116,28 @@ def list_uploads(
 
 
 @router.get("/{upload_id}")
-def get_upload(upload_id: int, db: Session = Depends(get_db)):
+def get_upload(
+    upload_id: int,
+    db: Session = Depends(get_db),
+    identity: Identity = Depends(current_identity),
+):
     u = db.query(BomUpload).filter(BomUpload.id == upload_id).first()
     if not u:
         raise HTTPException(404, "BOM upload not found")
+    _tenant_or_404(u, identity)
     return _serialize_upload(u, db, include_components=True)
 
 
 @router.delete("/{upload_id}")
-def delete_upload(upload_id: int, db: Session = Depends(get_db)):
+def delete_upload(
+    upload_id: int,
+    db: Session = Depends(get_db),
+    identity: Identity = Depends(current_identity),
+):
     u = db.query(BomUpload).filter(BomUpload.id == upload_id).first()
     if not u:
         raise HTTPException(404, "BOM upload not found")
+    _tenant_or_404(u, identity)
     db.delete(u)
     db.commit()
     return {"status": "deleted", "id": upload_id}

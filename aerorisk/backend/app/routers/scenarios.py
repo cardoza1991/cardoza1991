@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models.models import ImpactScenario, NotificationLog, Supplier, SupplierIntelSignal
+from ..services.auth import Identity, current_identity
 
 router = APIRouter(prefix="/api/scenarios", tags=["scenarios"])
 
@@ -52,9 +53,12 @@ def list_scenarios(
     supplier_id: Optional[int] = Query(None),
     limit: int = Query(50, le=200),
     db: Session = Depends(get_db),
+    identity: Identity = Depends(current_identity),
 ):
-    """Timeline of scenarios, newest first. Powers the autonomous trigger feed."""
-    q = db.query(ImpactScenario)
+    """Timeline of scenarios, newest first. Tenant-scoped."""
+    q = db.query(ImpactScenario).filter(
+        (ImpactScenario.tenant_id == identity.tenant_id) | (ImpactScenario.tenant_id.is_(None))
+    )
     if trigger:
         q = q.filter(ImpactScenario.trigger == trigger.upper())
     if severity:
@@ -66,9 +70,16 @@ def list_scenarios(
 
 
 @router.get("/{scenario_id}")
-def get_scenario(scenario_id: int, db: Session = Depends(get_db)):
+def get_scenario(
+    scenario_id: int,
+    db: Session = Depends(get_db),
+    identity: Identity = Depends(current_identity),
+):
     s = db.query(ImpactScenario).filter(ImpactScenario.id == scenario_id).first()
     if not s:
+        raise HTTPException(404, "scenario not found")
+    # Tenant guard. Legacy rows with NULL tenant_id are visible to default tenant.
+    if s.tenant_id is not None and s.tenant_id != identity.tenant_id:
         raise HTTPException(404, "scenario not found")
     return _serialize(s, db, include_snapshot=True)
 

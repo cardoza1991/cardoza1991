@@ -1,6 +1,37 @@
 import axios from 'axios'
 
+const TOKEN_KEY = 'aerorisk_token'
+
 const api = axios.create({ baseURL: '/api' })
+
+// Attach JWT on every request (if we have one).
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(TOKEN_KEY)
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+// On 401, clear the token so the AuthProvider notices and routes to login.
+api.interceptors.response.use(
+  (r) => r,
+  (err) => {
+    if (err?.response?.status === 401 && !err.config?.url?.endsWith('/auth/me')) {
+      localStorage.removeItem(TOKEN_KEY)
+      // Soft notify the AuthProvider via a custom event — avoids hard-reload.
+      window.dispatchEvent(new CustomEvent('aerorisk:auth-expired'))
+    }
+    return Promise.reject(err)
+  },
+)
+
+export const authAPI = {
+  login: (email, password) => api.post('/auth/login', { email, password }),
+  me: () => api.get('/auth/me'),
+  getToken: () => localStorage.getItem(TOKEN_KEY),
+  setToken: (t) => { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY) },
+  logout: () => localStorage.removeItem(TOKEN_KEY),
+  auditLog: (params = {}) => api.get('/auth/audit-log', { params }),
+}
 
 export const fleetAPI = {
   getAll: () => api.get('/fleet/'),

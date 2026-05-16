@@ -34,8 +34,11 @@ def record_scenario(
     impact: ImpactResult,
     trigger: str,
     trigger_signal_id: Optional[int] = None,
+    tenant_id: Optional[int] = None,
 ) -> ImpactScenario:
     """Persist an ImpactResult and return the row. Idempotent per (signal, supplier)."""
+    if tenant_id is None:
+        tenant_id = settings.default_tenant_id
     if trigger_signal_id is not None:
         existing = (
             db.query(ImpactScenario)
@@ -43,6 +46,7 @@ def record_scenario(
                 ImpactScenario.trigger == trigger,
                 ImpactScenario.trigger_signal_id == trigger_signal_id,
                 ImpactScenario.supplier_id == impact.supplier_id,
+                ImpactScenario.tenant_id == tenant_id,
             )
             .first()
         )
@@ -51,6 +55,7 @@ def record_scenario(
 
     snap = impact.as_dict()
     scenario = ImpactScenario(
+        tenant_id=tenant_id,
         supplier_id=impact.supplier_id,
         trigger=trigger,
         trigger_signal_id=trigger_signal_id,
