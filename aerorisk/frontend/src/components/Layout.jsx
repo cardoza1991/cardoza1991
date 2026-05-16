@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   Plane, Package, Users, TrendingUp, AlertTriangle,
-  FileText, Activity, Shield, Zap, ChevronRight, RefreshCw, Target,
+  FileText, Activity, Shield, Zap, ChevronRight, RefreshCw, Target, FileCode2,
 } from 'lucide-react'
 import { agentAPI } from '../api/client'
 
@@ -11,6 +11,7 @@ const navItems = [
   { path: '/parts', label: 'Critical Parts', icon: Package },
   { path: '/suppliers', label: 'Supplier Risk', icon: Users },
   { path: '/impact', label: 'Operational Impact', icon: Target, hot: true },
+  { path: '/bom', label: 'BOM / SBOM Analysis', icon: FileCode2, hot: true },
   { path: '/maintenance', label: 'Predictive Maintenance', icon: TrendingUp },
   { path: '/recommendations', label: 'AI Recommendations', icon: AlertTriangle },
   { path: '/executive', label: 'Executive Summary', icon: FileText },

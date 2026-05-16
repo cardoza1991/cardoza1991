@@ -8,6 +8,7 @@ import MaintenanceRisk from './pages/MaintenanceRisk'
 import AIRecommendations from './pages/AIRecommendations'
 import ExecutiveSummary from './pages/ExecutiveSummary'
 import SharedScenario from './pages/SharedScenario'
+import BomAnalysis from './pages/BomAnalysis'
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
               <Route path="/parts" element={<CriticalParts />} />
               <Route path="/suppliers" element={<SupplierRisk />} />
               <Route path="/impact" element={<OperationalImpact />} />
+              <Route path="/bom" element={<BomAnalysis />} />
               <Route path="/maintenance" element={<MaintenanceRisk />} />
               <Route path="/recommendations" element={<AIRecommendations />} />
               <Route path="/executive" element={<ExecutiveSummary />} />

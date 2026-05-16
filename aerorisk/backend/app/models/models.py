@@ -268,6 +268,65 @@ class ImpactScenario(Base):
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
 
+class BomUpload(Base):
+    """An uploaded Bill-of-Materials manifest (CycloneDX / SPDX / CSV).
+
+    The BOM is parsed into BomComponent rows, each enriched against NVD/KEV
+    for vulnerabilities and matched against the existing Part catalog. The
+    result is a per-upload risk roll-up plus, when components map to parts
+    that map to aircraft, a fleet-level cyber-physical impact summary.
+    """
+    __tablename__ = "bom_uploads"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200))
+    source_format = Column(String(20))                    # CYCLONEDX | SPDX | CSV
+    target_platform = Column(String(50), nullable=True)   # e.g. "F-35A" — scopes fleet impact
+    target_tail_number = Column(String(20), nullable=True)
+    component_count = Column(Integer, default=0)
+    matched_part_count = Column(Integer, default=0)       # components that hit an existing Part
+    matched_supplier_count = Column(Integer, default=0)
+    cve_count = Column(Integer, default=0)
+    critical_cve_count = Column(Integer, default=0)
+    max_cvss = Column(Float, default=0.0)
+    risk_score = Column(Float, default=0.0)               # 0..100 aggregate
+    affected_aircraft_count = Column(Integer, default=0)
+    affected_tails = Column(Text, nullable=True)          # JSON list[str]
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), index=True)
+
+    components = relationship("BomComponent", back_populates="upload", cascade="all, delete-orphan")
+
+
+class BomComponent(Base):
+    """A single line item parsed from a BOM."""
+    __tablename__ = "bom_components"
+    id = Column(Integer, primary_key=True, index=True)
+    bom_upload_id = Column(Integer, ForeignKey("bom_uploads.id"), index=True)
+
+    # Identity (from the BOM)
+    name = Column(String(300))
+    vendor = Column(String(200), nullable=True)
+    version = Column(String(80), nullable=True)
+    purl = Column(String(500), nullable=True)             # CycloneDX purl
+    cpe = Column(String(500), nullable=True)              # CPE 2.3 if available
+    part_number_raw = Column(String(80), nullable=True)   # if the BOM listed one
+
+    # Catalog match
+    matched_part_id = Column(Integer, ForeignKey("parts.id"), nullable=True, index=True)
+    matched_supplier_id = Column(Integer, ForeignKey("suppliers.id"), nullable=True, index=True)
+    match_confidence = Column(Float, default=0.0)
+    matched_on = Column(String(80), nullable=True)        # "part_number" | "name" | "vendor+product"
+
+    # Enrichment
+    cve_count = Column(Integer, default=0)
+    critical_cve_count = Column(Integer, default=0)
+    max_cvss = Column(Float, default=0.0)
+    kev_listed = Column(Boolean, default=False)
+    cves_json = Column(Text, nullable=True)               # JSON list of CVE refs
+
+    upload = relationship("BomUpload", back_populates="components")
+
+
 class NotificationLog(Base):
     """Audit trail for outbound notifications. One row per dispatch attempt."""
     __tablename__ = "notification_logs"

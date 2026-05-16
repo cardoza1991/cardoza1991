@@ -52,6 +52,20 @@ export const impactAPI = {
   brief: (params = {}) => api.get('/impact/brief', { params }),
 }
 
+export const bomAPI = {
+  list: () => api.get('/bom/'),
+  get: (id) => api.get(`/bom/${id}`),
+  upload: (file, opts = {}) => {
+    const form = new FormData()
+    form.append('file', file)
+    if (opts.name) form.append('name', opts.name)
+    if (opts.target_platform) form.append('target_platform', opts.target_platform)
+    if (opts.target_tail_number) form.append('target_tail_number', opts.target_tail_number)
+    return api.post('/bom/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+  },
+  remove: (id) => api.delete(`/bom/${id}`),
+}
+
 export const scenariosAPI = {
   list: (params = {}) => api.get('/scenarios/', { params }),
   get: (id) => api.get(`/scenarios/${id}`),
