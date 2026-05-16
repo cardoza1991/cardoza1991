@@ -36,3 +36,11 @@ export const agentAPI = {
   runQuery: (query) => api.post('/agent/query', { query }),
   runCycle: () => api.post('/agent/run-cycle'),
 }
+
+export const intelAPI = {
+  getSignals: (params = {}) => api.get('/intel/signals', { params }),
+  getSummary: () => api.get('/intel/summary'),
+  getFeeds: () => api.get('/intel/feeds'),
+  refresh: () => api.post('/intel/refresh'),
+  getSupplierIntel: (supplierId) => api.get(`/suppliers/${supplierId}/intel`),
+}

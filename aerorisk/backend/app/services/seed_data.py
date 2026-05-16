@@ -28,6 +28,9 @@ def seed_database(db: Session):
             "single_source_parts_count": 8,
             "is_approved": True,
             "last_audit_date": now - timedelta(days=90),
+            "aliases": json.dumps(["Lockheed Martin", "LMCO"]),
+            "domain": "lockheedmartin.com",
+            "keywords": json.dumps(["Lockheed", "Lockheed Martin"]),
         },
         {
             "name": "Raytheon Avionics Corp",
@@ -39,6 +42,9 @@ def seed_database(db: Session):
             "single_source_parts_count": 12,
             "is_approved": True,
             "last_audit_date": now - timedelta(days=120),
+            "aliases": json.dumps(["Raytheon Technologies", "RTX"]),
+            "domain": "rtx.com",
+            "keywords": json.dumps(["Raytheon", "RTX"]),
         },
         {
             "name": "Collins Aerospace Solutions",
@@ -50,6 +56,9 @@ def seed_database(db: Session):
             "single_source_parts_count": 5,
             "is_approved": True,
             "last_audit_date": now - timedelta(days=60),
+            "aliases": json.dumps(["Collins Aerospace", "Rockwell Collins"]),
+            "domain": "collinsaerospace.com",
+            "keywords": json.dumps(["Collins Aerospace", "ARINC 615A"]),
         },
         {
             "name": "GE Aviation Components",
@@ -61,6 +70,9 @@ def seed_database(db: Session):
             "single_source_parts_count": 6,
             "is_approved": True,
             "last_audit_date": now - timedelta(days=180),
+            "aliases": json.dumps(["GE Aerospace", "General Electric Aviation"]),
+            "domain": "geaerospace.com",
+            "keywords": json.dumps(["GE", "GE Aviation", "Aviation Engine Diagnostic"]),
         },
         {
             "name": "Moog Hydraulic Systems",
@@ -72,6 +84,9 @@ def seed_database(db: Session):
             "single_source_parts_count": 4,
             "is_approved": True,
             "last_audit_date": now - timedelta(days=240),
+            "aliases": json.dumps(["Moog Inc", "Hydraulic Equipment LLC"]),
+            "domain": "moog.com",
+            "keywords": json.dumps(["Moog", "DS2020 Servo Drive"]),
         },
         {
             "name": "Honeywell Aerospace Tech",
@@ -83,6 +98,9 @@ def seed_database(db: Session):
             "single_source_parts_count": 7,
             "is_approved": True,
             "last_audit_date": now - timedelta(days=45),
+            "aliases": json.dumps(["Honeywell International", "Honeywell"]),
+            "domain": "honeywell.com",
+            "keywords": json.dumps(["Honeywell", "Experion PKS"]),
         },
         {
             "name": "TransDigm Precision Parts",
@@ -94,6 +112,9 @@ def seed_database(db: Session):
             "single_source_parts_count": 9,
             "is_approved": True,
             "last_audit_date": now - timedelta(days=300),
+            "aliases": json.dumps(["TransDigm Group", "Pacific Rim Avionics Trading"]),
+            "domain": "transdigm.com",
+            "keywords": json.dumps(["TransDigm"]),
         },
         {
             "name": "Safran Landing Systems",
@@ -105,6 +126,9 @@ def seed_database(db: Session):
             "single_source_parts_count": 3,
             "is_approved": True,
             "last_audit_date": now - timedelta(days=150),
+            "aliases": json.dumps(["Safran", "Safran Group"]),
+            "domain": "safran-group.com",
+            "keywords": json.dumps(["Safran", "Landing Gear Maintenance Tool"]),
         },
     ]
 

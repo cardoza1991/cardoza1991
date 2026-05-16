@@ -40,9 +40,44 @@ class SupplierOut(SupplierBase):
     last_audit_date: Optional[datetime] = None
     created_at: Optional[datetime] = None
     risk_score: Optional[float] = None
+    intel_signal_count: Optional[int] = 0
+    intel_contribution: Optional[float] = 0.0
 
     class Config:
         from_attributes = True
+
+
+class SupplierIntelSignalOut(BaseModel):
+    id: int
+    supplier_id: Optional[int] = None
+    source: str
+    source_ref: str
+    signal_type: str
+    severity: str
+    title: str
+    body: Optional[str] = None
+    link: Optional[str] = None
+    observed_at: Optional[datetime] = None
+    fetched_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
+    is_active: bool = True
+    match_confidence: float = 0.0
+    matched_on: Optional[str] = None
+    score_weight: float = 0.0
+    supplier_name: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class IntelCycleSummary(BaseModel):
+    fetched: int
+    matched: int
+    new_signals: int
+    updated_signals: int
+    unmatched: int
+    by_source: dict
+    new_critical_signal_ids: list[int]
 
 
 class InventoryOut(BaseModel):

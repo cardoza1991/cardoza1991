@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 from ..database import get_db
-from ..models.models import Supplier, Part, PurchaseOrder, RiskScore
+from ..models.models import Supplier, Part, PurchaseOrder, RiskScore, SupplierIntelSignal
 from ..services.ml_predictor import predict_supplier_delay_probability
+from ..services.risk_engine import _supplier_intel_risk, SUPPLIER_INTEL_WEIGHT
 
 router = APIRouter(prefix="/api/suppliers", tags=["suppliers"])
 
@@ -44,6 +45,11 @@ def _enrich_supplier(supplier: Supplier, db: Session) -> dict:
         "days_since_audit": days_since_audit,
     })
 
+    intel_risk, active_signals = _supplier_intel_risk(db, supplier.id)
+    by_severity = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
+    for s in active_signals:
+        by_severity[s.severity] = by_severity.get(s.severity, 0) + 1
+
     return {
         "id": supplier.id,
         "name": supplier.name,
@@ -63,6 +69,25 @@ def _enrich_supplier(supplier: Supplier, db: Session) -> dict:
         "risk_level": "CRITICAL" if score >= 80 else "HIGH" if score >= 60 else "MEDIUM" if score >= 40 else "LOW",
         "delay_probability": delay_prob,
         "explanation": rs.explanation if rs else None,
+        "intel_signal_count": len(active_signals),
+        "intel_contribution": round(intel_risk * SUPPLIER_INTEL_WEIGHT, 1),
+        "intel_by_severity": by_severity,
+        "intel_signals": [
+            {
+                "id": s.id,
+                "source": s.source,
+                "source_ref": s.source_ref,
+                "signal_type": s.signal_type,
+                "severity": s.severity,
+                "title": s.title,
+                "body": s.body,
+                "link": s.link,
+                "observed_at": s.observed_at.isoformat() if s.observed_at else None,
+                "match_confidence": s.match_confidence,
+                "matched_on": s.matched_on,
+            }
+            for s in active_signals[:5]
+        ],
     }
 
 
@@ -93,6 +118,44 @@ def risk_map(db: Session = Depends(get_db)):
 
     result.sort(key=lambda x: x["risk_score"], reverse=True)
     return result
+
+
+@router.get("/{supplier_id}/intel")
+def supplier_intel(supplier_id: int, db: Session = Depends(get_db)):
+    """Full intel signal feed for a supplier — all active signals, newest first."""
+    supplier = db.query(Supplier).filter(Supplier.id == supplier_id).first()
+    if not supplier:
+        raise HTTPException(status_code=404, detail=f"Supplier {supplier_id} not found")
+
+    signals = (
+        db.query(SupplierIntelSignal)
+        .filter(SupplierIntelSignal.supplier_id == supplier_id)
+        .order_by(SupplierIntelSignal.observed_at.desc())
+        .all()
+    )
+    return {
+        "supplier_id": supplier.id,
+        "supplier_name": supplier.name,
+        "signals": [
+            {
+                "id": s.id,
+                "source": s.source,
+                "source_ref": s.source_ref,
+                "signal_type": s.signal_type,
+                "severity": s.severity,
+                "title": s.title,
+                "body": s.body,
+                "link": s.link,
+                "observed_at": s.observed_at.isoformat() if s.observed_at else None,
+                "fetched_at": s.fetched_at.isoformat() if s.fetched_at else None,
+                "is_active": s.is_active,
+                "match_confidence": s.match_confidence,
+                "matched_on": s.matched_on,
+                "score_weight": s.score_weight,
+            }
+            for s in signals
+        ],
+    }
 
 
 @router.get("/{supplier_id}")

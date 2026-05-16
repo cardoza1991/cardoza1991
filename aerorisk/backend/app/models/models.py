@@ -50,8 +50,15 @@ class Supplier(Base):
     last_audit_date = Column(DateTime)
     created_at = Column(DateTime, server_default=func.now())
 
+    # Intel-matching identifiers. JSON-encoded lists in Text columns to stay
+    # portable across PostgreSQL/SQLite without ARRAY/JSONB.
+    aliases = Column(Text, nullable=True)         # JSON list[str]
+    domain = Column(String(200), nullable=True)
+    keywords = Column(Text, nullable=True)        # JSON list[str]: CVE vendor strings, product names, etc.
+
     parts = relationship("Part", back_populates="supplier")
     purchase_orders = relationship("PurchaseOrder", back_populates="supplier")
+    intel_signals = relationship("SupplierIntelSignal", back_populates="supplier", cascade="all, delete-orphan")
 
 
 class Part(Base):
@@ -163,6 +170,46 @@ class RiskScore(Base):
     computed_at = Column(DateTime, server_default=func.now())
 
     aircraft = relationship("Aircraft", back_populates="risk_scores")
+
+
+class SupplierIntelSignal(Base):
+    """External-source signal attributed to a supplier.
+
+    A signal is a single observation (a sanction listing, a CVE in a product
+    line, an ICS advisory, a cyber incident report) — not a derived score.
+    The risk engine aggregates active signals into a supplier intel risk
+    component; the agent loop converts new CRITICAL signals into operator
+    recommendations.
+    """
+    __tablename__ = "supplier_intel_signals"
+    id = Column(Integer, primary_key=True, index=True)
+    supplier_id = Column(Integer, ForeignKey("suppliers.id"), nullable=True, index=True)
+
+    # Provenance
+    source = Column(String(50), index=True)          # OFAC | CISA_KEV | CISA_ICS | CUSTOM
+    source_ref = Column(String(200), index=True)     # SDN ID, CVE id, advisory id — used for dedupe
+    link = Column(String(500), nullable=True)
+
+    # Classification
+    signal_type = Column(String(40), index=True)     # SANCTION | CVE | ADVISORY | CYBER_INCIDENT | NEWS
+    severity = Column(String(20))                    # CRITICAL | HIGH | MEDIUM | LOW
+    score_weight = Column(Float, default=0.0)        # 0..1 contribution to intel risk component
+
+    # Content
+    title = Column(String(500))
+    body = Column(Text, nullable=True)
+
+    # Lifecycle
+    observed_at = Column(DateTime)                   # when the source published it
+    fetched_at = Column(DateTime, server_default=func.now())
+    expires_at = Column(DateTime, nullable=True)     # null = no expiry; risk engine treats expired as inactive
+    is_active = Column(Boolean, default=True)
+
+    # Matching
+    match_confidence = Column(Float, default=0.0)    # 0..100 from fuzzy match
+    matched_on = Column(String(200), nullable=True)  # which alias/keyword triggered the match
+
+    supplier = relationship("Supplier", back_populates="intel_signals")
 
 
 class AgentRecommendation(Base):

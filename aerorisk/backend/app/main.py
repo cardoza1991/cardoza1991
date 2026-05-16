@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, SessionLocal
 from .models.models import Base
-from .routers import fleet, parts, suppliers, risk, agent
+from .routers import fleet, parts, suppliers, risk, agent, intel
 from .services.seed_data import seed_database
-from .services.agent_loop import start_scheduler
+from .services.agent_loop import start_scheduler, run_agent_cycle
 from .services.ml_predictor import train_models
 from .config import settings
 
@@ -26,6 +26,7 @@ app.include_router(parts.router)
 app.include_router(suppliers.router)
 app.include_router(risk.router)
 app.include_router(agent.router)
+app.include_router(intel.router)
 
 
 @app.on_event("startup")
@@ -36,6 +37,10 @@ async def startup():
         db = SessionLocal()
         try:
             seed_database(db)
+            # Prime the intel + risk pipeline so the first dashboard render
+            # already has signals and scores, instead of waiting for the
+            # scheduled job 60s later.
+            run_agent_cycle(db)
         finally:
             db.close()
     start_scheduler()

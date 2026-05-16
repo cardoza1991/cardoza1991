@@ -5,17 +5,23 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from ..models.models import (
     Aircraft, Part, Supplier, Inventory, PurchaseOrder,
-    RiskScore, AgentRecommendation, MaintenanceEvent
+    RiskScore, AgentRecommendation, MaintenanceEvent, SupplierIntelSignal,
 )
 from .risk_engine import run_full_risk_assessment, get_nmc_risk_aircraft
 from .ml_predictor import predict_supplier_delay_probability, predict_stockout_probability
+from .intel import run_intel_cycle
 from ..database import SessionLocal
+from ..config import settings
 
 _scheduler = None
 
 
 def run_agent_cycle(db: Session):
     """Run one full agent analysis cycle."""
+    # Step 0: Pull external intel BEFORE scoring so signals are reflected.
+    intel_result = run_intel_cycle(db)
+    _emit_intel_alerts(db, intel_result.new_critical)
+
     # Step 1: Run full risk assessment
     run_full_risk_assessment(db)
 
@@ -225,6 +231,79 @@ def generate_leadership_summary(db: Session) -> str:
     ])
 
     return "\n".join(lines)
+
+
+def _emit_intel_alerts(db: Session, new_critical_ids: list[int]):
+    """Create an INTEL_ALERT recommendation for each net-new CRITICAL signal."""
+    for sig_id in new_critical_ids:
+        sig = db.query(SupplierIntelSignal).filter(SupplierIntelSignal.id == sig_id).first()
+        if not sig or not sig.supplier_id:
+            continue
+        supplier = db.query(Supplier).filter(Supplier.id == sig.supplier_id).first()
+        if not supplier:
+            continue
+
+        # Dedupe by (supplier, source_ref) so reruns don't pile up alerts.
+        existing = db.query(AgentRecommendation).filter(
+            AgentRecommendation.supplier_affected == supplier.name,
+            AgentRecommendation.recommendation_type == "INTEL_ALERT",
+            AgentRecommendation.description.like(f"%{sig.source_ref}%"),
+            AgentRecommendation.status == "OPEN",
+        ).first()
+        if existing:
+            continue
+
+        affected_parts = db.query(Part).filter(Part.supplier_id == supplier.id).all()
+        critical_part_numbers = [p.part_number for p in affected_parts if p.is_mission_critical]
+
+        if sig.signal_type == "SANCTION":
+            steps = [
+                f"HALT all new POs to {supplier.name} pending compliance review",
+                "Engage Trade Compliance / Export Control desk immediately",
+                f"Inventory existing commitments — {len(affected_parts)} parts ride on this supplier",
+                "Identify alternate qualified sources for affected critical parts",
+                "File internal sanctions exposure report to Legal & Procurement leadership",
+            ]
+        elif sig.signal_type == "CVE":
+            steps = [
+                f"Identify deployed assets containing affected {supplier.name} components",
+                "Apply vendor mitigation from the advisory",
+                "Quarantine network paths to affected components per Zero Trust policy",
+                "Verify firmware provenance / SBOM for impacted line-replaceable units",
+                "Brief avionics cybersecurity working group",
+            ]
+        else:
+            steps = [
+                f"Review {supplier.name} exposure: {len(affected_parts)} parts affected",
+                "Coordinate with supplier on mitigation timeline",
+                "Increase inventory cushion on affected parts until resolved",
+                "Re-audit supplier risk score after mitigation confirmed",
+            ]
+
+        rec = AgentRecommendation(
+            title=f"CRITICAL: {sig.title}",
+            recommendation_type="INTEL_ALERT",
+            priority="CRITICAL",
+            supplier_affected=supplier.name,
+            part_affected=critical_part_numbers[0] if critical_part_numbers else None,
+            description=(
+                f"[{sig.source} {sig.source_ref}] {sig.body or sig.title} "
+                f"(match confidence {sig.match_confidence:.0f}%, matched on {sig.matched_on})"
+            ),
+            rationale=(
+                f"External intel signal raises {supplier.name} risk. "
+                f"{len(affected_parts)} parts depend on this supplier, "
+                f"{len(critical_part_numbers)} of them mission-critical."
+            ),
+            estimated_impact=(
+                f"Operational exposure across {len(critical_part_numbers)} critical parts "
+                f"unless mitigated. See source: {sig.link or 'n/a'}"
+            ),
+            action_steps=json.dumps(steps),
+            status="OPEN",
+        )
+        db.add(rec)
+    db.commit()
 
 
 def _agent_job():
