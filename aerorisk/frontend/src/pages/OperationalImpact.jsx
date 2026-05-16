@@ -37,6 +37,58 @@ function HeadlineCard({ icon: Icon, label, value, sub, accent = 'sky', big }) {
   )
 }
 
+// Minimal markdown → HTML for the executive brief. Handles only what the
+// brief actually emits: ATX headings, bullet lists, ordered lists, **bold**,
+// `code`, em-rules, paragraphs. Inline HTML is escaped first so brief content
+// can't break out of the layout.
+function renderBriefHtml(md) {
+  const escape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const lines = md.split('\n')
+  let body = ''
+  let list = null   // 'ul' | 'ol' | null
+  const closeList = () => { if (list) { body += `</${list}>`; list = null } }
+  for (const raw of lines) {
+    const line = raw.replace(/\s+$/, '')
+    if (!line) { closeList(); continue }
+    let m
+    if ((m = line.match(/^#\s+(.*)/))) { closeList(); body += `<h1>${inline(m[1])}</h1>`; continue }
+    if ((m = line.match(/^##\s+(.*)/))) { closeList(); body += `<h2>${inline(m[1])}</h2>`; continue }
+    if ((m = line.match(/^###\s+(.*)/))) { closeList(); body += `<h3>${inline(m[1])}</h3>`; continue }
+    if (line === '---') { closeList(); body += '<hr/>'; continue }
+    if ((m = line.match(/^\s*-\s+(.*)/))) {
+      if (list !== 'ul') { closeList(); body += '<ul>'; list = 'ul' }
+      body += `<li>${inline(m[1])}</li>`; continue
+    }
+    if ((m = line.match(/^\s*\d+\.\s+(.*)/))) {
+      if (list !== 'ol') { closeList(); body += '<ol>'; list = 'ol' }
+      body += `<li>${inline(m[1])}</li>`; continue
+    }
+    closeList()
+    body += `<p>${inline(line)}</p>`
+  }
+  closeList()
+  function inline(s) {
+    return escape(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+  }
+  return `<!doctype html><html><head><meta charset="utf-8"><title>AeroRisk Executive Brief</title>
+<style>
+  @page { size: letter; margin: 0.6in; }
+  body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #111; max-width: 7.2in; margin: 0 auto; padding: 24px; line-height: 1.5; }
+  h1 { font-size: 22px; border-bottom: 2px solid #0ea5e9; padding-bottom: 6px; margin: 0 0 8px; }
+  h2 { font-size: 16px; margin-top: 20px; margin-bottom: 6px; color: #0c4a6e; }
+  h3 { font-size: 14px; margin-top: 14px; margin-bottom: 4px; }
+  p { margin: 6px 0; }
+  ul, ol { margin: 6px 0 6px 24px; }
+  li { margin: 2px 0; }
+  hr { border: none; border-top: 1px solid #d1d5db; margin: 18px 0; }
+  strong { color: #0c4a6e; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 90%; background: #f3f4f6; padding: 1px 4px; border-radius: 3px; }
+</style></head><body>${body}</body></html>`
+}
+
 function formatUSD(n) {
   if (n == null) return '$0'
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
@@ -136,6 +188,21 @@ export default function OperationalImpact() {
       setCopied(true)
       setTimeout(() => setCopied(false), 1800)
     } catch {}
+  }
+
+  // Render the markdown brief into a clean printable HTML document in a new
+  // window, then trigger the browser's print/Save-as-PDF dialog. This avoids
+  // a server-side PDF dependency (WeasyPrint/cairo/etc).
+  const printBrief = () => {
+    if (!brief) return
+    const html = renderBriefHtml(brief)
+    const w = window.open('', '_blank', 'noopener,noreferrer,width=900,height=1100')
+    if (!w) return
+    w.document.open()
+    w.document.write(html)
+    w.document.close()
+    // Allow the document to layout before printing.
+    w.onload = () => { try { w.focus(); w.print() } catch {} }
   }
 
   const supplierOptions = useMemo(
@@ -481,6 +548,10 @@ export default function OperationalImpact() {
               <h3 className="font-semibold text-slate-100">Executive Brief</h3>
               <span className="text-xs text-slate-500">{horizon}-day horizon</span>
               <div className="flex-1" />
+              <button onClick={printBrief} className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 rounded border border-emerald-500/30">
+                <FileText size={12} />
+                Print / Save as PDF
+              </button>
               <button onClick={copyBrief} className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-slate-300 rounded border border-gray-700">
                 {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
                 {copied ? 'Copied' : 'Copy markdown'}
