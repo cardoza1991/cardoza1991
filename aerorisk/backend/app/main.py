@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, SessionLocal
 from .models.models import Base
-from .routers import fleet, parts, suppliers, risk, agent, intel, impact
+from .routers import fleet, parts, suppliers, risk, agent, intel, impact, scenarios
 from .services.seed_data import seed_database
 from .services.agent_loop import start_scheduler, run_agent_cycle
 from .services.ml_predictor import train_models
@@ -28,6 +28,7 @@ app.include_router(risk.router)
 app.include_router(agent.router)
 app.include_router(intel.router)
 app.include_router(impact.router)
+app.include_router(scenarios.router)
 
 
 @app.on_event("startup")

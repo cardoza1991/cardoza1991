@@ -235,3 +235,48 @@ class AgentRecommendation(Base):
     status = Column(String(50), default="OPEN")
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
+
+
+class ImpactScenario(Base):
+    """Persisted snapshot of an operational impact simulation.
+
+    Created by:
+    - the autonomous trigger (every new CRITICAL intel signal),
+    - manual user simulation from the UI,
+    - scheduled portfolio runs.
+
+    Holds the full impact result as JSON so the page renders without
+    re-simulating, and so shareable links surface a stable view even
+    after the underlying data shifts. share_token enables a public
+    read-only URL — no auth required.
+    """
+    __tablename__ = "impact_scenarios"
+    id = Column(Integer, primary_key=True, index=True)
+    supplier_id = Column(Integer, ForeignKey("suppliers.id"), index=True)
+    trigger = Column(String(30), index=True)              # AUTO_INTEL | MANUAL | SCHEDULED
+    trigger_signal_id = Column(Integer, ForeignKey("supplier_intel_signals.id"), nullable=True)
+    horizon_days = Column(Integer)
+    severity = Column(String(20), index=True)
+    aircraft_affected = Column(Integer, default=0)
+    production_delay_days = Column(Integer, default=0)
+    dollar_exposure_usd = Column(Float, default=0.0)
+    confidence = Column(Float, default=0.0)
+    one_liner = Column(Text)
+    snapshot_json = Column(Text)                          # full ImpactResult.as_dict()
+    share_token = Column(String(64), unique=True, index=True)
+    notified = Column(Boolean, default=False)
+    created_at = Column(DateTime, server_default=func.now(), index=True)
+
+
+class NotificationLog(Base):
+    """Audit trail for outbound notifications. One row per dispatch attempt."""
+    __tablename__ = "notification_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    channel = Column(String(30), index=True)              # webhook | slack | console | email
+    target = Column(String(500))                          # URL, channel name, address — redacted at display time
+    scenario_id = Column(Integer, ForeignKey("impact_scenarios.id"), nullable=True)
+    signal_id = Column(Integer, ForeignKey("supplier_intel_signals.id"), nullable=True)
+    status = Column(String(20))                           # SENT | FAILED | SKIPPED
+    error = Column(Text, nullable=True)
+    payload_preview = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())

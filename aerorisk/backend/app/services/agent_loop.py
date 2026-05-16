@@ -10,6 +10,7 @@ from ..models.models import (
 from .risk_engine import run_full_risk_assessment, get_nmc_risk_aircraft
 from .ml_predictor import predict_supplier_delay_probability, predict_stockout_probability
 from .intel import run_intel_cycle
+from .scenarios import autonomous_trigger_for_critical_signals
 from ..database import SessionLocal
 from ..config import settings
 
@@ -21,6 +22,11 @@ def run_agent_cycle(db: Session):
     # Step 0: Pull external intel BEFORE scoring so signals are reflected.
     intel_result = run_intel_cycle(db)
     _emit_intel_alerts(db, intel_result.new_critical)
+
+    # Step 0a: Autonomous impact trigger — each new CRITICAL signal gets a
+    # persisted impact scenario and notification dispatch. Closes the loop:
+    # signal → analysis → operator pinged, no human in between.
+    autonomous_trigger_for_critical_signals(db, intel_result.new_critical)
 
     # Step 1: Run full risk assessment
     run_full_risk_assessment(db)

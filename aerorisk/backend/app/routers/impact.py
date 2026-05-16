@@ -9,6 +9,7 @@ from ..services.impact_engine import (
     QUALIFICATION_DAYS_DEFAULT, GROUNDED_AIRCRAFT_COST_PER_DAY,
 )
 from ..services.executive_brief import generate_executive_brief
+from ..services.scenarios import record_scenario
 
 router = APIRouter(prefix="/api/impact", tags=["impact"])
 
@@ -22,7 +23,11 @@ class SimulateRequest(BaseModel):
 
 @router.post("/simulate")
 def simulate(req: SimulateRequest, db: Session = Depends(get_db)):
-    """What-if: simulate the full operational ripple of supplier failure."""
+    """What-if: simulate the full operational ripple of supplier failure.
+
+    Also persists the snapshot as an ImpactScenario so it gets a
+    shareable URL and shows up in the autonomous timeline.
+    """
     result = simulate_supplier_failure(
         db, req.supplier_id,
         horizon_days=req.horizon_days,
@@ -31,7 +36,12 @@ def simulate(req: SimulateRequest, db: Session = Depends(get_db)):
     )
     if result is None:
         raise HTTPException(status_code=404, detail=f"Supplier {req.supplier_id} not found")
-    return result.as_dict()
+    scenario = record_scenario(db, result, trigger="MANUAL")
+    db.commit()
+    payload = result.as_dict()
+    payload["scenario_id"] = scenario.id
+    payload["share_token"] = scenario.share_token
+    return payload
 
 
 @router.get("/supplier/{supplier_id}")

@@ -51,3 +51,10 @@ export const impactAPI = {
   topRisks: (params = {}) => api.get('/impact/top-risks', { params }),
   brief: (params = {}) => api.get('/impact/brief', { params }),
 }
+
+export const scenariosAPI = {
+  list: (params = {}) => api.get('/scenarios/', { params }),
+  get: (id) => api.get(`/scenarios/${id}`),
+  getByShareToken: (token) => api.get(`/scenarios/share/${token}`),
+  notificationLog: (params = {}) => api.get('/scenarios/notifications/log', { params }),
+}

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   Zap, Target, Plane, DollarSign, Clock, ShieldCheck, AlertOctagon, Radio,
-  Copy, Check, FileText, ChevronRight, Layers, Activity,
+  Copy, Check, FileText, ChevronRight, Layers, Activity, Bot, Link2, Bell,
 } from 'lucide-react'
-import { impactAPI, suppliersAPI } from '../api/client'
+import { impactAPI, suppliersAPI, scenariosAPI } from '../api/client'
 
 const SEVERITY = {
   CRITICAL: { ring: 'ring-red-500/60', tag: 'bg-red-500/20 text-red-300 border-red-500/40' },
@@ -62,13 +62,25 @@ export default function OperationalImpact() {
   const [brief, setBrief] = useState('')
   const [briefOpen, setBriefOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [autoScenarios, setAutoScenarios] = useState([])
+  const [shareCopied, setShareCopied] = useState(false)
 
-  // Boot: load suppliers + top risks
+  const loadAutoFeed = () => {
+    scenariosAPI.list({ trigger: 'AUTO_INTEL', limit: 10 })
+      .then(r => setAutoScenarios(r.data))
+      .catch(console.error)
+  }
+
+  // Boot: load suppliers + top risks + autonomous feed
   useEffect(() => {
     Promise.all([
       suppliersAPI.getRiskMap().then(r => setSuppliers(r.data)),
       impactAPI.topRisks({ horizon_days: 90, top_n: 5 }).then(r => setTopRisks(r.data)),
     ]).catch(console.error)
+    loadAutoFeed()
+    // Poll the autonomous feed every 20s so new scenarios appear during a demo.
+    const t = setInterval(loadAutoFeed, 20_000)
+    return () => clearInterval(t)
   }, [])
 
   // Default-select the top supplier
@@ -98,6 +110,16 @@ export default function OperationalImpact() {
       // brief delay so the animation is visible
       setTimeout(() => setRunning(false), 400)
     }
+  }
+
+  const copyShareLink = async () => {
+    if (!impact?.share_token) return
+    const url = `${window.location.origin}/share/${impact.share_token}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 1800)
+    } catch {}
   }
 
   const openBrief = async () => {
@@ -144,6 +166,48 @@ export default function OperationalImpact() {
           <FileText size={14} />
           Generate Executive Brief
         </button>
+      </div>
+
+      {/* Autonomous trigger feed */}
+      <div className="bg-gradient-to-br from-red-950/30 to-gray-900 border border-red-500/20 rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-red-500/20 flex items-center gap-2">
+          <Bot size={14} className="text-red-400" />
+          <h2 className="font-semibold text-slate-100">Autonomous trigger feed</h2>
+          <span className="text-[10px] px-1.5 py-0.5 bg-red-500/20 text-red-300 border border-red-500/40 rounded font-semibold tracking-wider">LIVE</span>
+          <span className="text-xs text-slate-500 ml-2">
+            New CRITICAL intel → auto-impact → operator pinged. {autoScenarios.length} recent.
+          </span>
+        </div>
+        <div className="divide-y divide-gray-800/60 max-h-[200px] overflow-y-auto">
+          {autoScenarios.length === 0 && (
+            <div className="p-4 text-center text-xs text-slate-500 italic">
+              No autonomous scenarios yet. Click <span className="text-sky-400">Refresh intel feeds</span> on Supplier Risk to inject CRITICAL signals.
+            </div>
+          )}
+          {autoScenarios.map(sc => (
+            <button
+              key={sc.id}
+              onClick={() => setSupplierId(sc.supplier_id)}
+              className="w-full text-left p-3 hover:bg-gray-800/40 transition flex items-center gap-3"
+            >
+              <Tag severity={sc.severity} />
+              <Bell size={11} className={sc.notified ? 'text-emerald-400' : 'text-slate-500'} />
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-slate-200 truncate">
+                  <span className="font-semibold">{sc.supplier_name}</span>
+                  <span className="text-slate-500"> · triggered by </span>
+                  <span className="mono text-slate-400">{sc.trigger_signal_source}</span>
+                  <span className="text-slate-500"> · {sc.trigger_signal_title}</span>
+                </div>
+                <div className="text-[11px] text-slate-500 truncate">{sc.one_liner}</div>
+              </div>
+              <div className="text-right text-xs shrink-0">
+                <div className="text-red-300 font-semibold">{formatUSD(sc.dollar_exposure_usd)}</div>
+                <div className="text-slate-500">{new Date(sc.created_at + 'Z').toLocaleTimeString()}</div>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Top risks leaderboard */}
@@ -247,6 +311,16 @@ export default function OperationalImpact() {
                 {impact.executive_one_liner}
               </p>
             </div>
+            {impact.share_token && (
+              <button
+                onClick={copyShareLink}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-slate-300 rounded border border-gray-700 shrink-0"
+                title="Copy a public read-only link to this scenario"
+              >
+                {shareCopied ? <Check size={12} className="text-emerald-400" /> : <Link2 size={12} />}
+                {shareCopied ? 'Copied' : 'Copy share link'}
+              </button>
+            )}
           </div>
 
           {/* Headline numbers */}
