@@ -48,6 +48,16 @@ def build_supplier_index(db: Session) -> list[SupplierIndexEntry]:
             index.append(SupplierIndexEntry(s.id, kw, "keyword"))
         if s.domain:
             index.append(SupplierIndexEntry(s.id, s.domain, "domain"))
+        if s.ticker:
+            index.append(SupplierIndexEntry(s.id, s.ticker, "ticker"))
+        if s.cik:
+            # Keep the raw CIK and a zero-stripped variant — EDGAR pads to 10 digits.
+            index.append(SupplierIndexEntry(s.id, s.cik, "cik"))
+            stripped = s.cik.lstrip("0")
+            if stripped and stripped != s.cik:
+                index.append(SupplierIndexEntry(s.id, stripped, "cik"))
+        if s.hq_country_code:
+            index.append(SupplierIndexEntry(s.id, s.hq_country_code, "country_code"))
     return index
 
 

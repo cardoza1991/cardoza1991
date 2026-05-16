@@ -47,8 +47,11 @@ def _enrich_supplier(supplier: Supplier, db: Session) -> dict:
 
     intel_risk, active_signals = _supplier_intel_risk(db, supplier.id)
     by_severity = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
+    by_category = {}
     for s in active_signals:
         by_severity[s.severity] = by_severity.get(s.severity, 0) + 1
+        cat = s.category or "UNCATEGORIZED"
+        by_category[cat] = by_category.get(cat, 0) + 1
 
     return {
         "id": supplier.id,
@@ -69,14 +72,20 @@ def _enrich_supplier(supplier: Supplier, db: Session) -> dict:
         "risk_level": "CRITICAL" if score >= 80 else "HIGH" if score >= 60 else "MEDIUM" if score >= 40 else "LOW",
         "delay_probability": delay_prob,
         "explanation": rs.explanation if rs else None,
+        "ticker": supplier.ticker,
+        "cik": supplier.cik,
+        "hq_country_code": supplier.hq_country_code,
+        "hq_region": supplier.hq_region,
         "intel_signal_count": len(active_signals),
         "intel_contribution": round(intel_risk * SUPPLIER_INTEL_WEIGHT, 1),
         "intel_by_severity": by_severity,
+        "intel_by_category": by_category,
         "intel_signals": [
             {
                 "id": s.id,
                 "source": s.source,
                 "source_ref": s.source_ref,
+                "category": s.category,
                 "signal_type": s.signal_type,
                 "severity": s.severity,
                 "title": s.title,
@@ -85,6 +94,8 @@ def _enrich_supplier(supplier: Supplier, db: Session) -> dict:
                 "observed_at": s.observed_at.isoformat() if s.observed_at else None,
                 "match_confidence": s.match_confidence,
                 "matched_on": s.matched_on,
+                "numeric_value": s.numeric_value,
+                "numeric_unit": s.numeric_unit,
             }
             for s in active_signals[:5]
         ],

@@ -1,0 +1,41 @@
+{
+  "_note": "Synthetic NVD-shaped payload. Real NVD API: https://services.nvd.nist.gov/rest/json/cves/2.0",
+  "vulnerabilities": [
+    {
+      "cveID": "CVE-2026-44120",
+      "vendor": "Raytheon",
+      "product": "Network Centric Operations Suite",
+      "cvss_v3": 9.1,
+      "cwe": "CWE-787",
+      "description": "Heap buffer overflow in radar data processing component permits remote code execution by an attacker on the management VLAN.",
+      "published": "2026-04-25"
+    },
+    {
+      "cveID": "CVE-2026-50801",
+      "vendor": "Lockheed Martin",
+      "product": "Indago Ground Control Station",
+      "cvss_v3": 7.8,
+      "cwe": "CWE-269",
+      "description": "Improper privilege management allows a local operator to escalate to system privileges on the GCS host.",
+      "published": "2026-04-10"
+    },
+    {
+      "cveID": "CVE-2026-30277",
+      "vendor": "TransDigm",
+      "product": "Cabin Lighting Controller",
+      "cvss_v3": 6.5,
+      "cwe": "CWE-798",
+      "description": "Hardcoded maintenance credentials present in firmware permit unauthorized configuration changes.",
+      "published": "2026-03-19"
+    },
+    {
+      "cveID": "CVE-2026-22910",
+      "vendor": "Safran",
+      "product": "Inertial Reference System",
+      "cvss_v3": 5.4,
+      "cwe": "CWE-345",
+      "description": "Insufficient verification of IRS calibration messages may allow injection of crafted attitude data on the maintenance bus.",
+      "published": "2026-02-22"
+    }
+  ]
+}

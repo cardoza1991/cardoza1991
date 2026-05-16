@@ -1,0 +1,37 @@
+{
+  "_note": "Synthetic country-risk fixture. Real sources: World Bank WGI, Fragile States Index, State Dept travel advisories.",
+  "countries": [
+    {
+      "country_code": "TW",
+      "country_name": "Taiwan",
+      "risk_score": 64,
+      "as_of": "2026-05-01",
+      "summary": "Elevated cross-strait military activity; semiconductor and avionics supply concentration creates outsized exposure to escalation events.",
+      "link": "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
+    },
+    {
+      "country_code": "FR",
+      "country_name": "France",
+      "risk_score": 18,
+      "as_of": "2026-05-01",
+      "summary": "Stable. Periodic transport strikes can affect logistics throughput.",
+      "link": "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
+    },
+    {
+      "country_code": "CN",
+      "country_name": "China",
+      "risk_score": 72,
+      "as_of": "2026-05-01",
+      "summary": "Export controls and reciprocal restrictions tightening; dual-use component sourcing subject to license risk.",
+      "link": "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
+    },
+    {
+      "country_code": "US",
+      "country_name": "United States",
+      "risk_score": 12,
+      "as_of": "2026-05-01",
+      "summary": "Stable.",
+      "link": "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
+    }
+  ]
+}

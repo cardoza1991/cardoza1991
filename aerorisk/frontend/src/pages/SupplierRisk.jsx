@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ZAxis } from 'recharts'
-import { Users, AlertTriangle, TrendingDown, Shield, RefreshCw, Radio, ShieldAlert, Bug, FileWarning } from 'lucide-react'
+import { Users, AlertTriangle, TrendingDown, Shield, RefreshCw, Radio, ShieldAlert, Bug, FileWarning, DollarSign, Globe, CloudRain, Newspaper } from 'lucide-react'
 import { suppliersAPI, intelAPI } from '../api/client'
 import { StatCard } from '../components/StatCard'
 import { RiskBadge } from '../components/RiskBadge'
@@ -23,7 +23,21 @@ const SIGNAL_ICON = {
   CVE: Bug,
   ADVISORY: FileWarning,
   CYBER_INCIDENT: Bug,
-  NEWS: Radio,
+  NEWS: Newspaper,
+  STOCK_DROP: DollarSign,
+  STOCK_52W_LOW: DollarSign,
+  '8K_FILING': FileWarning,
+  COUNTRY_RISK: Globe,
+  DISASTER: CloudRain,
+}
+
+const CATEGORY_META = {
+  SANCTION:     { label: 'Sanctions',     icon: ShieldAlert, color: 'text-red-300' },
+  CYBER:        { label: 'Cyber',         icon: Bug,         color: 'text-orange-300' },
+  FINANCIAL:    { label: 'Financial',     icon: DollarSign,  color: 'text-yellow-300' },
+  NEWS:         { label: 'News',          icon: Newspaper,   color: 'text-sky-300' },
+  GEOPOLITICAL: { label: 'Geopolitical',  icon: Globe,       color: 'text-purple-300' },
+  DISASTER:     { label: 'Disaster',      icon: CloudRain,   color: 'text-cyan-300' },
 }
 
 const SEVERITY_STYLES = {
@@ -105,24 +119,30 @@ export default function SupplierRisk() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [expanded, setExpanded] = useState(null)
+  const [categoryFilter, setCategoryFilter] = useState(null)
 
-  const load = useCallback(() => {
+  const load = useCallback((category = null) => {
+    const params = { limit: 50, active_only: true }
+    if (category) params.category = category
     return Promise.all([
       suppliersAPI.getRiskMap().then(r => setSuppliers(r.data)),
-      intelAPI.getSignals({ limit: 25, active_only: true }).then(r => setSignals(r.data)),
+      intelAPI.getSignals(params).then(r => setSignals(r.data)),
       intelAPI.getSummary().then(r => setIntelSummary(r.data)),
     ])
   }, [])
 
+  useEffect(() => { load(categoryFilter).catch(console.error) }, [categoryFilter, load])
+
   useEffect(() => {
-    load().catch(console.error).finally(() => setLoading(false))
-  }, [load])
+    load(null).catch(console.error).finally(() => setLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const refresh = async () => {
     setRefreshing(true)
     try {
       await intelAPI.refresh()
-      await load()
+      await load(categoryFilter)
     } catch (e) { console.error(e) } finally { setRefreshing(false) }
   }
 
@@ -230,15 +250,52 @@ export default function SupplierRisk() {
 
         {/* Live intel feed */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col">
-          <div className="p-5 border-b border-gray-800 flex items-center gap-2">
-            <Radio size={14} className="text-sky-400" />
-            <h2 className="font-semibold text-slate-100">Live Intel Feed</h2>
-            <span className="text-xs text-slate-500 ml-2">{signals.length} recent · OFAC · CISA KEV · CISA ICS</span>
+          <div className="p-5 border-b border-gray-800">
+            <div className="flex items-center gap-2 mb-3">
+              <Radio size={14} className="text-sky-400" />
+              <h2 className="font-semibold text-slate-100">Live Intel Feed</h2>
+              <span className="text-xs text-slate-500 ml-2">{signals.length} recent · 10 public sources</span>
+            </div>
+            {/* Category filter chips */}
+            <div className="flex gap-1.5 flex-wrap">
+              <button
+                onClick={() => setCategoryFilter(null)}
+                className={`text-[10px] px-2 py-1 rounded border transition ${
+                  categoryFilter === null
+                    ? 'bg-sky-500/20 border-sky-500/50 text-sky-200'
+                    : 'bg-gray-800/40 border-gray-700 text-slate-400 hover:bg-gray-800'
+                }`}
+              >
+                All ({intelSummary?.total_active || 0})
+              </button>
+              {Object.entries(CATEGORY_META).map(([key, meta]) => {
+                const count = intelSummary?.by_category?.[key] || 0
+                if (count === 0) return null
+                const Icon = meta.icon
+                const active = categoryFilter === key
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setCategoryFilter(active ? null : key)}
+                    className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 transition ${
+                      active
+                        ? 'bg-sky-500/20 border-sky-500/50 text-sky-200'
+                        : 'bg-gray-800/40 border-gray-700 text-slate-400 hover:bg-gray-800'
+                    }`}
+                  >
+                    <Icon size={10} className={meta.color} />
+                    {meta.label} ({count})
+                  </button>
+                )
+              })}
+            </div>
           </div>
-          <div className="flex-1 overflow-y-auto max-h-[320px] divide-y divide-gray-800/60">
+          <div className="flex-1 overflow-y-auto max-h-[340px] divide-y divide-gray-800/60">
             {signals.length === 0 ? (
               <div className="p-6 text-center text-sm text-slate-500">
-                No active intel signals. Click <span className="text-sky-400">Refresh intel feeds</span> above to pull.
+                {categoryFilter
+                  ? <>No active {CATEGORY_META[categoryFilter]?.label.toLowerCase()} signals.</>
+                  : <>No active intel signals. Click <span className="text-sky-400">Refresh intel feeds</span> above to pull.</>}
               </div>
             ) : (
               signals.map(s => <SignalRow key={s.id} signal={s} />)
@@ -273,10 +330,17 @@ export default function SupplierRisk() {
                         {hasIntel && <ShieldAlert size={12} className="text-red-400 shrink-0" />}
                         <IntelBadges counts={s.intel_by_severity} />
                       </div>
-                      <div className="text-xs text-slate-500 mb-2">
-                        {s.country} · {s.parts_count} parts · {s.single_source_parts_count} single-source
+                      <div className="text-xs text-slate-500 mb-2 flex items-center gap-1.5 flex-wrap">
+                        <span>{s.country}</span>
+                        {s.ticker && (
+                          <span className="mono text-sky-400">${s.ticker}</span>
+                        )}
+                        {s.cik && (
+                          <span className="mono text-slate-600" title={`SEC CIK ${s.cik}`}>CIK {s.cik.replace(/^0+/, '')}</span>
+                        )}
+                        <span>· {s.parts_count} parts · {s.single_source_parts_count} single-source</span>
                         {s.intel_contribution > 0 && (
-                          <span className="text-red-400"> · +{s.intel_contribution} pts from intel</span>
+                          <span className="text-red-400">· +{s.intel_contribution} pts from intel</span>
                         )}
                       </div>
                       <div className="space-y-1 max-w-md">

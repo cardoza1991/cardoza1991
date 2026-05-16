@@ -1,0 +1,40 @@
+{
+  "_note": "Synthetic. Schema flattens EU consolidated, UK OFSI, and BIS Entity List into a single ingest shape so the matcher doesn't care which sanctions regime added the entry.",
+  "source": "EXTENDED_SANCTIONS",
+  "fetched_at": "2026-05-01T00:00:00Z",
+  "entries": [
+    {
+      "id": "EU-2026-0118",
+      "regime": "EU",
+      "name": "Eurasian Precision Aerostructures",
+      "aliases": ["EPA Holdings", "TransDigm offshore conduit"],
+      "country": "BY",
+      "program": "EU-RUSSIA-CSDP",
+      "listed_on": "2026-04-12",
+      "summary": "Listed on EU consolidated sanctions for serving as a procurement channel for sanctioned end users.",
+      "link": "https://webgate.ec.europa.eu/fsd/fsf/public/files/jsonFullSanctionsList_1_1/content"
+    },
+    {
+      "id": "UK-2026-0042",
+      "regime": "UK",
+      "name": "Pacific Rim Avionics Trading",
+      "aliases": ["PRA Trading Co"],
+      "country": "CN",
+      "program": "UK-RUSSIA-2022",
+      "listed_on": "2026-03-20",
+      "summary": "UK OFSI designation for evading sanctions on dual-use avionics components.",
+      "link": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.json"
+    },
+    {
+      "id": "BIS-2026-EL-077",
+      "regime": "BIS_ENTITY_LIST",
+      "name": "Shenzhen Astro Components Ltd",
+      "aliases": ["Astro Components", "Shenzhen Astro"],
+      "country": "CN",
+      "program": "EAR-99",
+      "listed_on": "2026-02-28",
+      "summary": "BIS Entity List addition — export license required for all EAR-controlled items.",
+      "link": "https://www.bis.doc.gov/dpl/dpl.txt"
+    }
+  ]
+}

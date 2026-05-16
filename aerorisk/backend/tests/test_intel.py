@@ -72,6 +72,38 @@ def test_critical_intel_lifts_supplier_risk_score(db, seeded_suppliers):
     assert "Intel:" in after["explanation"]
 
 
+def test_ticker_match_picks_up_stock_signal(db, seeded_suppliers):
+    """Equity feed must hook into the matcher via supplier.ticker."""
+    run_intel_cycle(db)
+    moog = next(s for s in seeded_suppliers if s.ticker == "MOG-A")
+    moog_signals = [s for s in moog.intel_signals if s.source == "EQUITY"]
+    assert any(s.signal_type == "STOCK_DROP" for s in moog_signals), \
+        "Moog had a >7% drop in the fixture; should produce a STOCK_DROP signal"
+    # Numeric value should round-trip.
+    drop = next(s for s in moog_signals if s.signal_type == "STOCK_DROP")
+    assert drop.numeric_value is not None and drop.numeric_value <= -7.0
+    assert drop.numeric_unit == "%"
+
+
+def test_country_risk_fans_out_to_all_suppliers_in_country(db, seeded_suppliers):
+    """COUNTRY_RISK signals must apply to every supplier in the matching country."""
+    run_intel_cycle(db)
+    safran = next(s for s in seeded_suppliers if s.hq_country_code == "FR")
+    fr_geo = [s for s in safran.intel_signals if s.signal_type == "COUNTRY_RISK"]
+    assert len(fr_geo) >= 1
+    assert fr_geo[0].matched_on == "country_code:FR"
+
+
+def test_categories_are_set_on_persisted_signals(db, seeded_suppliers):
+    run_intel_cycle(db)
+    cats = {s.category for s in db.query(SupplierIntelSignal).all()}
+    # We expect at least these categories from the fixtures.
+    assert "SANCTION" in cats
+    assert "CYBER" in cats
+    assert "FINANCIAL" in cats
+    assert "GEOPOLITICAL" in cats
+
+
 def test_sanction_match_creates_intel_alert_via_agent_cycle(db, seeded_suppliers):
     from app.services.agent_loop import run_agent_cycle
     from app.models.models import AgentRecommendation

@@ -1,0 +1,41 @@
+{
+  "_note": "Synthetic news fixture in a GDELT-ish shape. Real GDELT 2.0 doc API: https://api.gdeltproject.org/api/v2/doc/doc",
+  "articles": [
+    {
+      "id": "GDELT-26050801",
+      "title": "Honeywell hit by ransomware affecting industrial software customers",
+      "summary": "Reports indicate a ransomware actor exfiltrated configuration data tied to Experion PKS deployments; CISA briefed customers.",
+      "tone": -7.4,
+      "url": "https://example.com/news/honeywell-ransomware",
+      "published": "2026-05-08",
+      "entities": ["Honeywell", "Experion PKS"]
+    },
+    {
+      "id": "GDELT-26041411",
+      "title": "Workers at Moog Inc. East Aurora plant authorize strike vote",
+      "summary": "Machinists' union files strike authorization affecting servo drive production lines used in aerospace actuators.",
+      "tone": -5.8,
+      "url": "https://example.com/news/moog-strike",
+      "published": "2026-04-14",
+      "entities": ["Moog Inc", "Moog"]
+    },
+    {
+      "id": "GDELT-26042212",
+      "title": "Safran warns of Tier-2 supplier disruption in landing gear program",
+      "summary": "Safran disclosed delivery delays after Tier-2 forging supplier reported equipment failure; impact to Airbus and Boeing programs under review.",
+      "tone": -4.1,
+      "url": "https://example.com/news/safran-tier2",
+      "published": "2026-04-22",
+      "entities": ["Safran"]
+    },
+    {
+      "id": "GDELT-26033012",
+      "title": "Collins Aerospace recalls firmware update over signature flaw",
+      "summary": "Collins Aerospace announces voluntary firmware recall for ARINC 615A data loaders following discovery of unsigned LSAP path.",
+      "tone": -3.6,
+      "url": "https://example.com/news/collins-firmware-recall",
+      "published": "2026-03-30",
+      "entities": ["Collins Aerospace"]
+    }
+  ]
+}

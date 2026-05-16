@@ -55,6 +55,10 @@ class Supplier(Base):
     aliases = Column(Text, nullable=True)         # JSON list[str]
     domain = Column(String(200), nullable=True)
     keywords = Column(Text, nullable=True)        # JSON list[str]: CVE vendor strings, product names, etc.
+    ticker = Column(String(20), nullable=True, index=True)   # equity symbol (e.g. "RTX", "LMT")
+    cik = Column(String(20), nullable=True, index=True)       # SEC CIK for EDGAR lookups
+    hq_country_code = Column(String(4), nullable=True)        # ISO-3166-1 alpha-2 (e.g. "US", "FR", "TW")
+    hq_region = Column(String(60), nullable=True)             # "North America", "Asia-Pacific", etc.
 
     parts = relationship("Part", back_populates="supplier")
     purchase_orders = relationship("PurchaseOrder", back_populates="supplier")
@@ -191,9 +195,12 @@ class SupplierIntelSignal(Base):
     link = Column(String(500), nullable=True)
 
     # Classification
-    signal_type = Column(String(40), index=True)     # SANCTION | CVE | ADVISORY | CYBER_INCIDENT | NEWS
+    category = Column(String(30), index=True)        # SANCTION | CYBER | FINANCIAL | NEWS | GEOPOLITICAL | DISASTER
+    signal_type = Column(String(40), index=True)     # SANCTION | CVE | ADVISORY | CYBER_INCIDENT | NEWS | STOCK_DROP | 8K_FILING | COUNTRY_RISK | DISASTER
     severity = Column(String(20))                    # CRITICAL | HIGH | MEDIUM | LOW
     score_weight = Column(Float, default=0.0)        # 0..1 contribution to intel risk component
+    numeric_value = Column(Float, nullable=True)     # stock pct change, CVSS, tone score — whatever the feed publishes
+    numeric_unit = Column(String(20), nullable=True) # "%", "USD", "CVSS", "GDELT"
 
     # Content
     title = Column(String(500))

@@ -17,6 +17,7 @@ def _to_out(sig: SupplierIntelSignal) -> dict:
         "supplier_name": sig.supplier.name if sig.supplier else None,
         "source": sig.source,
         "source_ref": sig.source_ref,
+        "category": sig.category,
         "signal_type": sig.signal_type,
         "severity": sig.severity,
         "title": sig.title,
@@ -29,6 +30,8 @@ def _to_out(sig: SupplierIntelSignal) -> dict:
         "match_confidence": sig.match_confidence,
         "matched_on": sig.matched_on,
         "score_weight": sig.score_weight,
+        "numeric_value": sig.numeric_value,
+        "numeric_unit": sig.numeric_unit,
     }
 
 
@@ -36,6 +39,7 @@ def _to_out(sig: SupplierIntelSignal) -> dict:
 def list_signals(
     severity: Optional[str] = Query(None),
     source: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
     supplier_id: Optional[int] = Query(None),
     active_only: bool = Query(True),
     limit: int = Query(100, le=500),
@@ -47,6 +51,8 @@ def list_signals(
         q = q.filter(SupplierIntelSignal.severity == severity.upper())
     if source:
         q = q.filter(SupplierIntelSignal.source == source.upper())
+    if category:
+        q = q.filter(SupplierIntelSignal.category == category.upper())
     if supplier_id is not None:
         q = q.filter(SupplierIntelSignal.supplier_id == supplier_id)
     if active_only:
@@ -72,23 +78,35 @@ def refresh(db: Session = Depends(get_db)):
 @router.get("/summary")
 def summary(db: Session = Depends(get_db)):
     """Counts for the SupplierRisk page header."""
-    total = db.query(SupplierIntelSignal).filter(SupplierIntelSignal.is_active == True).count()  # noqa: E712
-    critical = db.query(SupplierIntelSignal).filter(
-        SupplierIntelSignal.is_active == True,                                                    # noqa: E712
-        SupplierIntelSignal.severity == "CRITICAL",
-    ).count()
-    high = db.query(SupplierIntelSignal).filter(
-        SupplierIntelSignal.is_active == True,                                                    # noqa: E712
-        SupplierIntelSignal.severity == "HIGH",
-    ).count()
-    sanctioned_suppliers = db.query(SupplierIntelSignal.supplier_id).filter(
-        SupplierIntelSignal.is_active == True,                                                    # noqa: E712
-        SupplierIntelSignal.signal_type == "SANCTION",
-        SupplierIntelSignal.supplier_id.isnot(None),
-    ).distinct().count()
+    from sqlalchemy import func as sql_func
+    base = db.query(SupplierIntelSignal).filter(SupplierIntelSignal.is_active == True)  # noqa: E712
+    total = base.count()
+    critical = base.filter(SupplierIntelSignal.severity == "CRITICAL").count()
+    high = base.filter(SupplierIntelSignal.severity == "HIGH").count()
+    sanctioned_suppliers = (
+        db.query(SupplierIntelSignal.supplier_id)
+        .filter(SupplierIntelSignal.is_active == True,                                  # noqa: E712
+                SupplierIntelSignal.signal_type == "SANCTION",
+                SupplierIntelSignal.supplier_id.isnot(None))
+        .distinct().count()
+    )
+
+    # by_category, by_source counts for the UI filter chips.
+    cat_rows = (
+        db.query(SupplierIntelSignal.category, sql_func.count(SupplierIntelSignal.id))
+        .filter(SupplierIntelSignal.is_active == True)                                  # noqa: E712
+        .group_by(SupplierIntelSignal.category).all()
+    )
+    src_rows = (
+        db.query(SupplierIntelSignal.source, sql_func.count(SupplierIntelSignal.id))
+        .filter(SupplierIntelSignal.is_active == True)                                  # noqa: E712
+        .group_by(SupplierIntelSignal.source).all()
+    )
     return {
         "total_active": total,
         "critical": critical,
         "high": high,
         "sanctioned_suppliers": sanctioned_suppliers,
+        "by_category": {k or "UNCATEGORIZED": v for k, v in cat_rows},
+        "by_source": {k or "UNKNOWN": v for k, v in src_rows},
     }

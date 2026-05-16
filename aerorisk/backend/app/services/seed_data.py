@@ -31,6 +31,10 @@ def seed_database(db: Session):
             "aliases": json.dumps(["Lockheed Martin", "LMCO"]),
             "domain": "lockheedmartin.com",
             "keywords": json.dumps(["Lockheed", "Lockheed Martin"]),
+            "ticker": "LMT",
+            "cik": "0000936468",
+            "hq_country_code": "US",
+            "hq_region": "North America",
         },
         {
             "name": "Raytheon Avionics Corp",
@@ -45,6 +49,10 @@ def seed_database(db: Session):
             "aliases": json.dumps(["Raytheon Technologies", "RTX"]),
             "domain": "rtx.com",
             "keywords": json.dumps(["Raytheon", "RTX"]),
+            "ticker": "RTX",
+            "cik": "0000101829",
+            "hq_country_code": "US",
+            "hq_region": "North America",
         },
         {
             "name": "Collins Aerospace Solutions",
@@ -59,6 +67,10 @@ def seed_database(db: Session):
             "aliases": json.dumps(["Collins Aerospace", "Rockwell Collins"]),
             "domain": "collinsaerospace.com",
             "keywords": json.dumps(["Collins Aerospace", "ARINC 615A"]),
+            "ticker": "RTX",   # subsidiary of RTX
+            "cik": "0000101829",
+            "hq_country_code": "US",
+            "hq_region": "North America",
         },
         {
             "name": "GE Aviation Components",
@@ -73,6 +85,10 @@ def seed_database(db: Session):
             "aliases": json.dumps(["GE Aerospace", "General Electric Aviation"]),
             "domain": "geaerospace.com",
             "keywords": json.dumps(["GE", "GE Aviation", "Aviation Engine Diagnostic"]),
+            "ticker": "GE",
+            "cik": "0000040545",
+            "hq_country_code": "US",
+            "hq_region": "North America",
         },
         {
             "name": "Moog Hydraulic Systems",
@@ -87,6 +103,10 @@ def seed_database(db: Session):
             "aliases": json.dumps(["Moog Inc", "Hydraulic Equipment LLC"]),
             "domain": "moog.com",
             "keywords": json.dumps(["Moog", "DS2020 Servo Drive"]),
+            "ticker": "MOG-A",
+            "cik": "0000067887",
+            "hq_country_code": "US",
+            "hq_region": "North America",
         },
         {
             "name": "Honeywell Aerospace Tech",
@@ -101,6 +121,10 @@ def seed_database(db: Session):
             "aliases": json.dumps(["Honeywell International", "Honeywell"]),
             "domain": "honeywell.com",
             "keywords": json.dumps(["Honeywell", "Experion PKS"]),
+            "ticker": "HON",
+            "cik": "0000773840",
+            "hq_country_code": "US",
+            "hq_region": "North America",
         },
         {
             "name": "TransDigm Precision Parts",
@@ -115,6 +139,10 @@ def seed_database(db: Session):
             "aliases": json.dumps(["TransDigm Group", "Pacific Rim Avionics Trading"]),
             "domain": "transdigm.com",
             "keywords": json.dumps(["TransDigm"]),
+            "ticker": "TDG",
+            "cik": "0001260221",
+            "hq_country_code": "US",
+            "hq_region": "North America",
         },
         {
             "name": "Safran Landing Systems",
@@ -129,6 +157,10 @@ def seed_database(db: Session):
             "aliases": json.dumps(["Safran", "Safran Group"]),
             "domain": "safran-group.com",
             "keywords": json.dumps(["Safran", "Landing Gear Maintenance Tool"]),
+            "ticker": "SAF.PA",
+            "cik": None,    # foreign issuer, no SEC CIK
+            "hq_country_code": "FR",
+            "hq_region": "Europe",
         },
     ]
 
