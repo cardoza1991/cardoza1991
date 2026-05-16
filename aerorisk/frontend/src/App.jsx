@@ -11,6 +11,7 @@ import ExecutiveSummary from './pages/ExecutiveSummary'
 import SharedScenario from './pages/SharedScenario'
 import BomAnalysis from './pages/BomAnalysis'
 import Login from './pages/Login'
+import Landing from './pages/Landing'
 
 function AuthGate({ children }) {
   const { session, loading } = useAuth()
@@ -34,6 +35,8 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          {/* Public marketing page — outside the app shell, no auth. */}
+          <Route path="/welcome" element={<Landing />} />
           {/* Public share route — no auth, no sidebar. Looks like a published report. */}
           <Route path="/share/:token" element={<SharedScenario />} />
           {/* App routes inside the dashboard layout. */}

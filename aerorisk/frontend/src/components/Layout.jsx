@@ -119,6 +119,9 @@ export function Layout({ children }) {
               <span>Cycle</span>
               <span className="text-slate-400 mono">60s</span>
             </div>
+            <a href="/welcome" className="block text-[10px] text-slate-600 hover:text-sky-400 pt-1">
+              Marketing page →
+            </a>
           </div>
         </div>
       </aside>
