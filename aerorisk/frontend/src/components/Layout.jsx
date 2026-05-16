@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   Plane, Package, Users, TrendingUp, AlertTriangle,
-  FileText, Activity, Shield, Zap, ChevronRight, RefreshCw
+  FileText, Activity, Shield, Zap, ChevronRight, RefreshCw, Target,
 } from 'lucide-react'
 import { agentAPI } from '../api/client'
 
@@ -10,6 +10,7 @@ const navItems = [
   { path: '/', label: 'Fleet Readiness', icon: Plane },
   { path: '/parts', label: 'Critical Parts', icon: Package },
   { path: '/suppliers', label: 'Supplier Risk', icon: Users },
+  { path: '/impact', label: 'Operational Impact', icon: Target, hot: true },
   { path: '/maintenance', label: 'Predictive Maintenance', icon: TrendingUp },
   { path: '/recommendations', label: 'AI Recommendations', icon: AlertTriangle },
   { path: '/executive', label: 'Executive Summary', icon: FileText },
@@ -62,7 +63,7 @@ export function Layout({ children }) {
 
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {navItems.map(({ path, label, icon: Icon }) => (
+          {navItems.map(({ path, label, icon: Icon, hot }) => (
             <NavLink
               key={path}
               to={path}
@@ -77,6 +78,7 @@ export function Layout({ children }) {
             >
               <Icon size={16} />
               <span className="flex-1">{label}</span>
+              {hot && <span className="text-[9px] px-1.5 py-0.5 bg-red-500/20 text-red-300 border border-red-500/40 rounded font-semibold tracking-wider">NEW</span>}
               <ChevronRight size={12} className="opacity-40" />
             </NavLink>
           ))}

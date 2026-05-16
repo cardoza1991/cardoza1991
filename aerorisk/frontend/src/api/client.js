@@ -44,3 +44,10 @@ export const intelAPI = {
   refresh: () => api.post('/intel/refresh'),
   getSupplierIntel: (supplierId) => api.get(`/suppliers/${supplierId}/intel`),
 }
+
+export const impactAPI = {
+  simulate: (payload) => api.post('/impact/simulate', payload),
+  forSupplier: (supplierId, params = {}) => api.get(`/impact/supplier/${supplierId}`, { params }),
+  topRisks: (params = {}) => api.get('/impact/top-risks', { params }),
+  brief: (params = {}) => api.get('/impact/brief', { params }),
+}
