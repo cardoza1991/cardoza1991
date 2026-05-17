@@ -2,7 +2,13 @@ import axios from 'axios'
 
 const TOKEN_KEY = 'aerorisk_token'
 
-const api = axios.create({ baseURL: '/api' })
+// In dev: VITE_API_BASE is unset → falls back to "/api" and Vite's proxy
+// forwards to localhost:8000. In a Cloudflare Pages build: set
+// VITE_API_BASE=https://api.your-domain.example so the SPA hits your
+// Cloudflare Tunnel hostname instead of the Pages origin.
+const API_BASE = import.meta.env.VITE_API_BASE || '/api'
+
+const api = axios.create({ baseURL: API_BASE })
 
 // Attach JWT on every request (if we have one).
 api.interceptors.request.use((config) => {
@@ -23,6 +29,10 @@ api.interceptors.response.use(
     return Promise.reject(err)
   },
 )
+
+export const landingAPI = {
+  stats: () => api.get('/landing/stats'),
+}
 
 export const authAPI = {
   login: (email, password) => api.post('/auth/login', { email, password }),

@@ -16,9 +16,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
+_origins = [o.strip() for o in settings.cors_allow_origins.split(",") if o.strip()] or ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_origins,
+    # Credentials only if the deployer locked origins down; wildcard + creds
+    # is invalid per the CORS spec.
+    allow_credentials=_origins != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

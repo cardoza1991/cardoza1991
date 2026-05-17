@@ -1,0 +1,3 @@
+# Cloudflare Pages SPA fallback — any unknown path serves index.html so
+# react-router can resolve /share/:token, /welcome, /impact, etc.
+/*    /index.html   200

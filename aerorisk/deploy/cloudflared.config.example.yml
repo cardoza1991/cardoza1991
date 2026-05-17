@@ -1,0 +1,32 @@
+# Cloudflare Tunnel config for the AeroRisk backend.
+#
+# One-time setup on the box where uvicorn runs:
+#   brew install cloudflared        # or apt install cloudflared
+#   cloudflared tunnel login        # opens browser, picks the zone
+#   cloudflared tunnel create aerorisk-api
+#   # Note the tunnel UUID it prints; paste it as `tunnel:` below.
+#   # Copy the credentials JSON path it created into credentials-file:.
+#   cloudflared tunnel route dns aerorisk-api api.your-domain.example
+#
+# Then run (or wrap in systemd / launchd):
+#   cloudflared tunnel --config cloudflared.config.yml run
+#
+# Now https://api.your-domain.example terminates TLS at Cloudflare's edge,
+# tunnels to your box over an outbound connection, and hits uvicorn on
+# 127.0.0.1:8000. No inbound ports open on the backend host.
+
+tunnel: 00000000-0000-0000-0000-000000000000
+credentials-file: /etc/cloudflared/00000000-0000-0000-0000-000000000000.json
+
+# Disable QUIC if you're behind a firewall that drops UDP.
+# protocol: http2
+
+ingress:
+  - hostname: api.your-domain.example
+    service: http://localhost:8000
+    originRequest:
+      # FastAPI handles its own keepalives; let uvicorn breathe.
+      connectTimeout: 30s
+      noTLSVerify: true
+  # Catch-all required by cloudflared.
+  - service: http_status:404

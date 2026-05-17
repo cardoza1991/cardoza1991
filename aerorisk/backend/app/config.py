@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     # Auth / tenancy. Defaults preserve the open demo: anonymous requests work
     # and resolve to the default tenant. Flip `require_auth=true` in any real
     # deployment to enforce login. JWT secret MUST be overridden in prod.
+    # Comma-separated list of allowed origins for CORS. Defaults to "*" so the
+    # demo Just Works; in production set this to the Cloudflare Pages URL
+    # (e.g. "https://aerorisk.pages.dev,https://aerorisk.example.com") so the
+    # tunneled API only accepts requests from your own SPA.
+    cors_allow_origins: str = "*"
+
     require_auth: bool = False
     jwt_secret: str = "aerorisk-demo-secret-rotate-in-prod"
     jwt_algorithm: str = "HS256"

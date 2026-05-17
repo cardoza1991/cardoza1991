@@ -5,7 +5,7 @@ import {
   ShieldCheck, Activity, Zap, Lock, GitBranch, Sparkles, ChevronRight,
   AlertOctagon, DollarSign, Clock, Layers, ExternalLink,
 } from 'lucide-react'
-import axios from 'axios'
+import { landingAPI } from '../api/client'
 
 function fmt(n) {
   if (n == null) return '—'
@@ -18,7 +18,7 @@ export default function Landing() {
   const [stats, setStats] = useState(null)
 
   useEffect(() => {
-    axios.get('/api/landing/stats')
+    landingAPI.stats()
       .then(r => setStats(r.data))
       .catch(() => setStats({}))   // page must render even if backend's down
   }, [])
