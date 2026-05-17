@@ -1,105 +1,124 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" role="img" aria-label="Michael Cardoza — Autonomous Systems Engineer">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" role="img" aria-label="Michael Cardoza — Autonomous Systems Command">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a0a0a"/>
-      <stop offset="100%" stop-color="#1a1a1a"/>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"  stop-color="#000"/>
+      <stop offset="60%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#1a0303"/>
     </linearGradient>
-    <linearGradient id="redPanel" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="redBand" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#E10600"/>
       <stop offset="100%" stop-color="#8B0000"/>
     </linearGradient>
-    <linearGradient id="bolt" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="goldBand" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#FFE600"/>
       <stop offset="100%" stop-color="#FFB300"/>
     </linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="3" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
+    <pattern id="dots" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.9" fill="#E10600" opacity="0.55"/>
+    </pattern>
+    <pattern id="dotsGold" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.8" fill="#FFD600" opacity="0.5"/>
+    </pattern>
   </defs>
 
-  <!-- background -->
-  <rect width="1200" height="340" fill="url(#bg)"/>
+  <!-- base -->
+  <rect width="1200" height="380" fill="url(#bgGrad)"/>
 
-  <!-- subtle grid lines (HUD feel) -->
-  <g stroke="#222" stroke-width="1">
-    <line x1="0" y1="80"  x2="1200" y2="80"/>
-    <line x1="0" y1="260" x2="1200" y2="260"/>
+  <!-- halftone wash bottom-left -->
+  <rect x="0" y="200" width="700" height="180" fill="url(#dots)"/>
+  <!-- gold halftone top-right -->
+  <rect x="800" y="0" width="400" height="160" fill="url(#dotsGold)"/>
+
+  <!-- diagonal red band behind the title (rotated, big) -->
+  <g transform="rotate(-6 600 190)">
+    <rect x="-40" y="120" width="1280" height="120" fill="url(#redBand)"/>
+    <rect x="-40" y="118" width="1280" height="4"  fill="#000"/>
+    <rect x="-40" y="240" width="1280" height="4"  fill="#000"/>
+    <!-- thin yellow accent stripe parallel -->
+    <rect x="-40" y="244" width="1280" height="6"  fill="url(#goldBand)"/>
+    <rect x="-40" y="252" width="1280" height="2"  fill="#000"/>
   </g>
 
-  <!-- red Zeon-style angled panel, left side -->
-  <polygon points="0,0 460,0 360,340 0,340" fill="url(#redPanel)"/>
-  <polygon points="380,0 420,0 320,340 280,340" fill="#0a0a0a" opacity="0.55"/>
-  <polygon points="430,0 450,0 350,340 330,340" fill="#FFD600" opacity="0.85"/>
-
-  <!-- Zaku II head silhouette (stylized, front view) -->
-  <g transform="translate(90,90)">
-    <!-- helmet shell -->
-    <path d="M 30,10 L 170,10 L 195,55 L 195,150 L 175,180 L 25,180 L 5,150 L 5,55 Z"
-          fill="#1a1a1a" stroke="#000" stroke-width="3"/>
-    <!-- crown plate -->
-    <path d="M 50,10 L 150,10 L 140,28 L 60,28 Z" fill="#2b2b2b"/>
-    <!-- visor slot (black bar) -->
-    <rect x="15" y="78" width="170" height="30" fill="#000" rx="3"/>
-    <rect x="15" y="78" width="170" height="6" fill="#333"/>
-    <!-- mono-eye (the iconic single eye) -->
-    <g filter="url(#glow)">
-      <circle cx="115" cy="93" r="11" fill="#FFD600"/>
-      <circle cx="115" cy="93" r="6" fill="#FF1A1A"/>
-      <circle cx="113" cy="91" r="2" fill="#fff"/>
-    </g>
-    <!-- mouth grill / vents -->
-    <g fill="#0a0a0a" stroke="#444" stroke-width="1">
-      <rect x="60" y="130" width="80" height="6"/>
-      <rect x="60" y="142" width="80" height="6"/>
-      <rect x="60" y="154" width="80" height="6"/>
-    </g>
-    <!-- side antenna spike -->
-    <polygon points="195,40 230,20 200,55" fill="#FFD600" stroke="#000" stroke-width="2"/>
-    <!-- shoulder pipe hint -->
-    <circle cx="10"  cy="60" r="6" fill="#2b2b2b" stroke="#000"/>
-    <circle cx="190" cy="60" r="6" fill="#2b2b2b" stroke="#000"/>
+  <!-- sharp angular thunderbolts -->
+  <g stroke="#000" stroke-width="2.5" stroke-linejoin="miter">
+    <!-- bolt 1 -->
+    <polygon points="60,40 30,150 70,150 20,300 110,140 70,140 100,40" fill="url(#goldBand)"/>
+    <!-- bolt 2 -->
+    <polygon points="1100,30 1070,130 1100,130 1060,250 1140,120 1110,120 1140,30" fill="url(#goldBand)"/>
+    <!-- bolt 3 small -->
+    <polygon points="1020,290 1005,330 1020,330 1005,360 1040,320 1024,320 1040,290" fill="url(#goldBand)"/>
   </g>
 
-  <!-- decorative thunderbolts -->
-  <g stroke="#000" stroke-width="2" stroke-linejoin="miter">
-    <path d="M 980,30 L 940,110 L 970,110 L 920,200 L 1000,100 L 970,100 L 1010,30 Z" fill="url(#bolt)"/>
-    <path d="M 1110,200 L 1080,250 L 1100,250 L 1070,310 L 1130,240 L 1108,240 L 1135,200 Z" fill="url(#bolt)"/>
-    <path d="M 820,250 L 800,290 L 815,290 L 795,330 L 835,285 L 818,285 L 840,250 Z" fill="url(#bolt)" opacity="0.85"/>
+  <!-- original angular crest (Zeon-inspired, not literal) -->
+  <g transform="translate(960,80)" stroke="#FFD600" stroke-width="2.5" fill="none" stroke-linejoin="miter">
+    <!-- outer angular wings -->
+    <polygon points="0,40 40,0 60,15 35,55 75,55 50,90 0,90 -15,65" fill="#0a0a0a"/>
+    <polygon points="100,40 60,0 40,15 65,55 25,55 50,90 100,90 115,65" fill="#0a0a0a"/>
+    <!-- central thunderbolt -->
+    <polygon points="50,5 38,45 52,45 38,85 64,40 52,40 64,5"
+             fill="url(#goldBand)" stroke="#000" stroke-width="2"/>
   </g>
 
-  <!-- name + tagline -->
-  <g font-family="Impact, 'Arial Black', sans-serif">
-    <text x="500" y="120" font-size="62" fill="#FFD600" letter-spacing="4">MICHAEL CARDOZA</text>
-    <text x="502" y="122" font-size="62" fill="#E10600" letter-spacing="4" opacity="0.35">MICHAEL CARDOZA</text>
+  <!-- top stencil row -->
+  <g font-family="'Courier New', monospace" font-size="11" fill="#FFD600" letter-spacing="3">
+    <text x="30" y="22">MS-06S // CALLSIGN: ZAKU-II // FIELD-OPS-2026</text>
+    <text x="30" y="38" fill="#E10600">// AUTONOMOUS SYSTEMS COMMAND // CARDOZA SERVICES</text>
   </g>
-  <text x="500" y="160" font-family="'Courier New', monospace" font-size="20" fill="#f0f0f0" letter-spacing="2">
-    AUTONOMOUS SYSTEMS · AI INFRASTRUCTURE · DEFENSE TECH
-  </text>
-  <text x="500" y="195" font-family="'Courier New', monospace" font-size="14" fill="#E10600" letter-spacing="3">
-    [ VULTUREOS  //  XIAOS  //  SLAYER-VAULT  //  DRIFTLESS ]
+
+  <!-- vertical kanji column right -->
+  <g font-family="'Yu Gothic', 'Hiragino Sans', sans-serif" font-size="22" fill="#FFD600" letter-spacing="6">
+    <text x="1158" y="100" writing-mode="tb">自律システム</text>
+  </g>
+  <text x="1158" y="240" font-family="'Courier New', monospace" font-size="10" fill="#888" letter-spacing="2" writing-mode="tb">
+    JIRITSU . SYSTEM
   </text>
 
-  <!-- status pill: open for contracts -->
-  <g transform="translate(500,225)">
-    <rect width="280" height="36" rx="4" fill="#0a0a0a" stroke="#FFD600" stroke-width="2"/>
-    <circle cx="20" cy="18" r="6" fill="#39FF14">
-      <animate attributeName="opacity" values="1;0.3;1" dur="1.6s" repeatCount="indefinite"/>
+  <!-- THE NAME — heavy condensed-italic, layered shadow for depth -->
+  <g font-family="Impact, 'Arial Black', 'Helvetica Neue', sans-serif" font-weight="900">
+    <!-- shadow layers -->
+    <text x="74" y="208" font-size="92" fill="#000" font-style="italic" letter-spacing="2">MICHAEL CARDOZA</text>
+    <text x="70" y="204" font-size="92" fill="#FFD600" font-style="italic" letter-spacing="2">MICHAEL CARDOZA</text>
+    <text x="66" y="200" font-size="92" fill="#fff" font-style="italic" letter-spacing="2">MICHAEL CARDOZA</text>
+  </g>
+
+  <!-- tagline -->
+  <text x="70" y="248" font-family="'Courier New', monospace" font-size="18" fill="#0a0a0a" letter-spacing="3" font-weight="bold">
+    AUTONOMOUS SYSTEMS · AI INFRA · DEFENSE TECH
+  </text>
+
+  <!-- project codes line -->
+  <text x="70" y="300" font-family="'Courier New', monospace" font-size="14" fill="#E10600" letter-spacing="4" font-weight="bold">
+    [ VULTUREOS ]   [ XIAOS ]   [ SLAYER-VAULT ]   [ DRIFTLESS ]
+  </text>
+
+  <!-- bottom status bar -->
+  <g transform="translate(0,340)">
+    <rect x="0" y="0" width="1200" height="40" fill="#0a0a0a"/>
+    <rect x="0" y="0" width="1200" height="2"  fill="#FFD600"/>
+    <rect x="0" y="38" width="1200" height="2" fill="#E10600"/>
+
+    <!-- blinking ready light -->
+    <circle cx="30" cy="20" r="7" fill="#39FF14">
+      <animate attributeName="opacity" values="1;0.25;1" dur="1.4s" repeatCount="indefinite"/>
     </circle>
-    <text x="38" y="24" font-family="'Courier New', monospace" font-size="14" fill="#FFD600" letter-spacing="2">
+    <text x="50" y="26" font-family="'Courier New', monospace" font-size="14" fill="#FFD600" letter-spacing="3" font-weight="bold">
       STATUS: OPEN FOR CONTRACTS
+    </text>
+
+    <text x="430" y="26" font-family="'Courier New', monospace" font-size="13" fill="#888" letter-spacing="2">
+      SCOPE: SMB → ENTERPRISE
+    </text>
+    <text x="700" y="26" font-family="'Courier New', monospace" font-size="13" fill="#888" letter-spacing="2">
+      COMMS: cardozaservices.com
+    </text>
+    <text x="1080" y="26" font-family="'Courier New', monospace" font-size="13" fill="#E10600" letter-spacing="3" font-weight="bold">
+      // ENGAGE
     </text>
   </g>
 
-  <!-- callsign block -->
-  <g transform="translate(500,280)" font-family="'Courier New', monospace" font-size="12" fill="#888">
-    <text x="0"   y="14">CALLSIGN_ZAKU-II  //  PILOT: M.CARDOZA</text>
-    <text x="0"   y="32">SECTOR: SMB → ENTERPRISE  //  COMMS: cardozaservices.com</text>
-  </g>
-
-  <!-- corner stencil marks -->
-  <g fill="#FFD600" font-family="'Courier New', monospace" font-size="11" letter-spacing="2">
-    <text x="20"   y="25">MS-06 // FIELD OPS</text>
-    <text x="1080" y="330" text-anchor="start">v.2026.05</text>
+  <!-- registration marks (grit) -->
+  <g stroke="#FFD600" stroke-width="1.5" fill="none">
+    <path d="M 1170,10 L 1190,10 L 1190,30"/>
+    <path d="M 10,360 L 10,340 L 30,340"/>
   </g>
 </svg>
