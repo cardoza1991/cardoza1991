@@ -1,0 +1,45 @@
+{
+  "_note": "Shape mirrors items returned by https://www.cisa.gov/cybersecurity-advisories/ics-advisories. Synthetic content tuned for the seeded supplier set.",
+  "advisories": [
+    {
+      "id": "ICSA-26-108-01",
+      "title": "Honeywell Experion PKS — Stack-Based Buffer Overflow",
+      "vendors": ["Honeywell"],
+      "products": ["Experion PKS"],
+      "released": "2026-04-18",
+      "cvss_v3": 9.8,
+      "summary": "Successful exploitation could result in remote code execution on engineering workstations and unauthenticated control of process variables.",
+      "link": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-108-01"
+    },
+    {
+      "id": "ICSA-26-089-02",
+      "title": "Collins ARINC 615A Data Loader — Insecure Firmware Update",
+      "vendors": ["Collins Aerospace"],
+      "products": ["ARINC 615A Data Loader"],
+      "released": "2026-03-30",
+      "cvss_v3": 8.7,
+      "summary": "Missing cryptographic signature verification permits insertion of unsigned LSAP firmware into avionics line-replaceable units during ground maintenance.",
+      "link": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-089-02"
+    },
+    {
+      "id": "ICSA-26-061-04",
+      "title": "Moog Servo Drive Family — Improper Authentication",
+      "vendors": ["Moog"],
+      "products": ["DS2020 Servo Drive"],
+      "released": "2026-03-02",
+      "cvss_v3": 7.5,
+      "summary": "Authentication bypass in the configuration web service allows attackers on the OT network to alter drive parameters affecting hydraulic actuator behavior.",
+      "link": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-061-04"
+    },
+    {
+      "id": "ICSA-26-042-01",
+      "title": "Safran Landing Systems — Maintenance Tool Privilege Escalation",
+      "vendors": ["Safran"],
+      "products": ["Landing Gear Maintenance Tool"],
+      "released": "2026-02-11",
+      "cvss_v3": 6.8,
+      "summary": "Local privilege escalation in maintenance laptop tooling could allow modification of brake-by-wire calibration data.",
+      "link": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-042-01"
+    }
+  ]
+}

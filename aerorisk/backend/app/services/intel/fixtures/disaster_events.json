@@ -1,0 +1,44 @@
+{
+  "_note": "Synthetic disaster fixture. Live sources: USGS earthquakes feed, NOAA NHC tropical storms, GDACS global alerts.",
+  "events": [
+    {
+      "id": "USGS-2026-04-19-TWN",
+      "event_type": "Earthquake",
+      "headline": "M6.4 earthquake — eastern Taiwan",
+      "summary": "Magnitude 6.4 quake off the eastern coast of Taiwan; semiconductor fab production temporarily halted; aftershocks ongoing.",
+      "country_code": "TW",
+      "region": "Asia-Pacific",
+      "magnitude": 6.4,
+      "magnitude_unit": "Mw",
+      "severity": "HIGH",
+      "occurred_at": "2026-04-19",
+      "link": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson"
+    },
+    {
+      "id": "NHC-2026-05-AL01",
+      "event_type": "Tropical Storm",
+      "headline": "Tropical Storm Bart — Gulf Coast landfall",
+      "summary": "TS Bart making landfall along Louisiana coast; potential disruption to Gulf Coast aerospace manufacturing and shipping.",
+      "country_code": "US",
+      "region": "North America",
+      "magnitude": 70,
+      "magnitude_unit": "mph",
+      "severity": "MEDIUM",
+      "occurred_at": "2026-05-12",
+      "link": "https://www.nhc.noaa.gov/CurrentStorms.json"
+    },
+    {
+      "id": "GDACS-2026-FIRE-FR-01",
+      "event_type": "Industrial Fire",
+      "headline": "Fire at composite materials facility — southern France",
+      "summary": "Significant fire reported at composites supplier facility in southern France; landing gear and airframe composite supply impacted.",
+      "country_code": "FR",
+      "region": "Europe",
+      "magnitude": 0,
+      "magnitude_unit": "",
+      "severity": "MEDIUM",
+      "occurred_at": "2026-04-30",
+      "link": "https://www.gdacs.org/xml/rss.xml"
+    }
+  ]
+}

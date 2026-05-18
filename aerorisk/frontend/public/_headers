@@ -1,0 +1,15 @@
+# Cloudflare Pages headers. Cache hashed assets aggressively, never cache
+# the HTML shell (or stale deploys haunt users for a week).
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/index.html
+  Cache-Control: no-cache
+
+# Defense-in-depth headers. CSP allows the configured API host plus same-
+# origin assets; tighten further once you have a final api hostname.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()

@@ -1,0 +1,49 @@
+{
+  "_note": "Synthetic SEC EDGAR 8-K shape. Real submissions endpoint: https://data.sec.gov/submissions/CIK{padded}.json",
+  "filings": [
+    {
+      "accession": "0000040545-26-000041",
+      "cik": "0000040545",
+      "ticker": "GE",
+      "company": "GE Aerospace",
+      "item": "8.01",
+      "headline": "Cybersecurity incident at engine diagnostics subsidiary",
+      "summary": "GE Aerospace discloses cybersecurity incident affecting engine diagnostic infrastructure; investigation ongoing; material impact to operations not yet determined.",
+      "filed_at": "2026-05-08",
+      "link": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040545"
+    },
+    {
+      "accession": "0000101829-26-000017",
+      "cik": "0000101829",
+      "ticker": "RTX",
+      "company": "RTX Corporation",
+      "item": "4.02",
+      "headline": "Non-reliance on previously issued financial statements",
+      "summary": "Audit committee concludes prior period financials should no longer be relied upon pending restatement; matter relates to revenue recognition in defense services segment.",
+      "filed_at": "2026-04-28",
+      "link": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829"
+    },
+    {
+      "accession": "0001260221-26-000009",
+      "cik": "0001260221",
+      "ticker": "TDG",
+      "company": "TransDigm Group Incorporated",
+      "item": "2.04",
+      "headline": "Triggering event accelerating financial obligation",
+      "summary": "Covenant breach in revolving credit facility triggers accelerated repayment obligation; company in discussion with lenders.",
+      "filed_at": "2026-04-15",
+      "link": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001260221"
+    },
+    {
+      "accession": "0000067887-26-000022",
+      "cik": "0000067887",
+      "ticker": "MOG-A",
+      "company": "Moog Inc.",
+      "item": "5.02",
+      "headline": "Departure of principal financial officer",
+      "summary": "CFO announces resignation effective immediately; interim CFO named pending search.",
+      "filed_at": "2026-03-28",
+      "link": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000067887"
+    }
+  ]
+}

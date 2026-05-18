@@ -4,8 +4,12 @@ from datetime import datetime, timedelta
 from typing import Optional
 from ..models.models import (
     Aircraft, Part, Supplier, Inventory, PurchaseOrder,
-    MaintenanceEvent, RiskScore
+    MaintenanceEvent, RiskScore, SupplierIntelSignal,
 )
+
+
+# How much weight (in final 0-100 score points) the intel component contributes.
+SUPPLIER_INTEL_WEIGHT = 30.0
 
 
 def predict_stockout_days(
@@ -202,8 +206,39 @@ def compute_aircraft_risk(db: Session, aircraft_id: int) -> dict:
     }
 
 
+def _supplier_intel_risk(db: Session, supplier_id: int) -> tuple[float, list[SupplierIntelSignal]]:
+    """Aggregate active intel signals into a 0..1 risk component.
+
+    Returns (risk, active_signals). Signals are sorted by severity weight
+    descending so callers can pull the top N for explanations.
+    """
+    now = datetime.utcnow()
+    signals = (
+        db.query(SupplierIntelSignal)
+        .filter(
+            SupplierIntelSignal.supplier_id == supplier_id,
+            SupplierIntelSignal.is_active == True,  # noqa: E712
+        )
+        .all()
+    )
+    # Filter out expired
+    active = [s for s in signals if s.expires_at is None or s.expires_at > now]
+    if not active:
+        return 0.0, []
+
+    # Diminishing-returns aggregation: each successive signal adds half as much.
+    # Keeps a single CRITICAL meaningful while still rewarding pile-ups.
+    active.sort(key=lambda s: s.score_weight, reverse=True)
+    acc = 0.0
+    discount = 1.0
+    for s in active:
+        acc += (s.score_weight or 0.0) * discount
+        discount *= 0.5
+    return min(1.0, acc), active
+
+
 def compute_supplier_risk(db: Session, supplier_id: int) -> dict:
-    """Compute supplier reliability risk."""
+    """Compute supplier reliability risk including external intel signals."""
     supplier = db.query(Supplier).filter(Supplier.id == supplier_id).first()
     if not supplier:
         return {}
@@ -215,21 +250,36 @@ def compute_supplier_risk(db: Session, supplier_id: int) -> dict:
         PurchaseOrder.status == "DELAYED"
     ).count()
     delay_factor = min(0.3, delayed_pos * 0.1)
-    score = min(100, (sup_risk + delay_factor) * 100)
+    base_score = (sup_risk + delay_factor) * 100  # 0..130 before intel
 
-    explanation = (
+    intel_risk, active_signals = _supplier_intel_risk(db, supplier_id)
+    intel_contribution = intel_risk * SUPPLIER_INTEL_WEIGHT
+
+    score = min(100.0, base_score + intel_contribution)
+
+    explanation_parts = [
         f"{supplier.name}: reliability {supplier.reliability_score:.2f}, "
         f"OTD {supplier.on_time_delivery_rate*100:.0f}%, "
         f"defect rate {supplier.defect_rate*100:.1f}%, "
         f"{supplier.single_source_parts_count} single-source parts, "
         f"{delayed_pos} delayed POs."
-    )
+    ]
+    if active_signals:
+        top = active_signals[:3]
+        explanation_parts.append(
+            f"Intel: {len(active_signals)} active signal(s) (+{intel_contribution:.0f} pts). "
+            + " | ".join(f"[{s.severity}] {s.source} {s.title}" for s in top)
+        )
 
     return {
         "score": round(score, 1),
         "supplier_reliability_risk": round(sup_risk, 3),
         "delayed_pos": delayed_pos,
-        "explanation": explanation,
+        "intel_risk": round(intel_risk, 3),
+        "intel_contribution": round(intel_contribution, 1),
+        "intel_signal_count": len(active_signals),
+        "intel_signals": active_signals,
+        "explanation": " ".join(explanation_parts),
     }
 
 

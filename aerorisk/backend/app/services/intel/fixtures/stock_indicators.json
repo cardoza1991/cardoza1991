@@ -1,0 +1,76 @@
+{
+  "_note": "Synthetic equity snapshot. Field names mirror the Yahoo Finance quote endpoint so the live path lines up cleanly.",
+  "fetched_at": "2026-05-15T20:00:00Z",
+  "quotes": [
+    {
+      "symbol": "RTX",
+      "longName": "RTX Corporation",
+      "shortName": "Raytheon Technologies",
+      "regularMarketPrice": 89.42,
+      "regularMarketChangePercent": -5.8,
+      "fiftyTwoWeekLow": 88.10,
+      "fiftyTwoWeekHigh": 132.15,
+      "date": "2026-05-15"
+    },
+    {
+      "symbol": "TDG",
+      "longName": "TransDigm Group Incorporated",
+      "shortName": "TransDigm",
+      "regularMarketPrice": 1421.05,
+      "regularMarketChangePercent": -2.4,
+      "fiftyTwoWeekLow": 1180.00,
+      "fiftyTwoWeekHigh": 1650.00,
+      "date": "2026-05-15"
+    },
+    {
+      "symbol": "MOG-A",
+      "longName": "Moog Inc.",
+      "shortName": "Moog",
+      "regularMarketPrice": 142.20,
+      "regularMarketChangePercent": -8.2,
+      "fiftyTwoWeekLow": 141.80,
+      "fiftyTwoWeekHigh": 215.40,
+      "date": "2026-05-15"
+    },
+    {
+      "symbol": "SAF.PA",
+      "longName": "Safran SA",
+      "shortName": "Safran",
+      "regularMarketPrice": 198.50,
+      "regularMarketChangePercent": -0.4,
+      "fiftyTwoWeekLow": 175.00,
+      "fiftyTwoWeekHigh": 240.00,
+      "date": "2026-05-15"
+    },
+    {
+      "symbol": "LMT",
+      "longName": "Lockheed Martin Corporation",
+      "shortName": "Lockheed Martin",
+      "regularMarketPrice": 462.20,
+      "regularMarketChangePercent": 0.6,
+      "fiftyTwoWeekLow": 410.00,
+      "fiftyTwoWeekHigh": 490.00,
+      "date": "2026-05-15"
+    },
+    {
+      "symbol": "HON",
+      "longName": "Honeywell International Inc.",
+      "shortName": "Honeywell",
+      "regularMarketPrice": 200.10,
+      "regularMarketChangePercent": -4.7,
+      "fiftyTwoWeekLow": 188.00,
+      "fiftyTwoWeekHigh": 230.00,
+      "date": "2026-05-15"
+    },
+    {
+      "symbol": "GE",
+      "longName": "GE Aerospace",
+      "shortName": "GE Aerospace",
+      "regularMarketPrice": 162.30,
+      "regularMarketChangePercent": -1.1,
+      "fiftyTwoWeekLow": 140.00,
+      "fiftyTwoWeekHigh": 195.00,
+      "date": "2026-05-15"
+    }
+  ]
+}

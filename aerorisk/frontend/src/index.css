@@ -39,3 +39,25 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
 }
+
+/* Print styles — turn dark dashboard chrome into a clean printable report. */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  /* Snap dark-on-dark elements to readable print colors */
+  .bg-gray-900, .bg-gray-950, .bg-gray-900\/80, .bg-gray-900\/70, .bg-gray-900\/50,
+  .bg-gray-950\/50, .bg-gray-950\/60 {
+    background: white !important;
+  }
+  .border-gray-800, .border-gray-700 { border-color: #d1d5db !important; }
+  .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400 { color: #111 !important; }
+  .text-slate-500, .text-slate-600 { color: #555 !important; }
+  /* Hide app chrome */
+  header, aside, nav, .print\:hidden { display: none !important; }
+  /* No box shadows or rings in print */
+  * { box-shadow: none !important; }
+  @page { size: letter; margin: 0.6in; }
+}

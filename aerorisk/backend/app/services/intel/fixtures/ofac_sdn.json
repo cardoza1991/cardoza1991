@@ -1,0 +1,27 @@
+{
+  "_note": "Synthetic OFAC-shaped fixture. Names are fictional and exist only to exercise the matcher against seeded suppliers. Replace with live SDN data when intel_live_feeds=true.",
+  "source": "OFAC_SDN",
+  "fetched_at": "2026-05-01T00:00:00Z",
+  "entries": [
+    {
+      "id": "SDN-77821",
+      "name": "Hydraulic Equipment LLC",
+      "aliases": ["Moog Sanctioned Subsidiary", "Hydraulic Sys Trading"],
+      "country": "RU",
+      "program": "RUSSIA-EO14024",
+      "listed_on": "2026-04-22",
+      "summary": "Listed for procurement of dual-use hydraulic actuators on behalf of a sanctioned defense entity.",
+      "link": "https://sanctionssearch.ofac.treas.gov/Details.aspx?id=77821"
+    },
+    {
+      "id": "SDN-92140",
+      "name": "Pacific Rim Avionics Trading",
+      "aliases": ["TransDigm Shadow Buyer", "PRA Trading Co"],
+      "country": "CN",
+      "program": "NS-CMIC",
+      "listed_on": "2026-03-11",
+      "summary": "Designated for facilitating diversion of US-origin avionics components to PLA-affiliated end users.",
+      "link": "https://sanctionssearch.ofac.treas.gov/Details.aspx?id=92140"
+    }
+  ]
+}

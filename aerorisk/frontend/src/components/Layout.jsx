@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   Plane, Package, Users, TrendingUp, AlertTriangle,
-  FileText, Activity, Shield, Zap, ChevronRight, RefreshCw
+  FileText, Activity, Shield, Zap, ChevronRight, RefreshCw, Target, FileCode2,
+  LogOut, UserCircle2,
 } from 'lucide-react'
 import { agentAPI } from '../api/client'
+import { useAuth } from '../auth/AuthContext'
 
 const navItems = [
   { path: '/', label: 'Fleet Readiness', icon: Plane },
   { path: '/parts', label: 'Critical Parts', icon: Package },
   { path: '/suppliers', label: 'Supplier Risk', icon: Users },
+  { path: '/impact', label: 'Operational Impact', icon: Target, hot: true },
+  { path: '/bom', label: 'BOM / SBOM Analysis', icon: FileCode2, hot: true },
   { path: '/maintenance', label: 'Predictive Maintenance', icon: TrendingUp },
   { path: '/recommendations', label: 'AI Recommendations', icon: AlertTriangle },
   { path: '/executive', label: 'Executive Summary', icon: FileText },
@@ -19,6 +23,7 @@ export function Layout({ children }) {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [running, setRunning] = useState(false)
   const [cycleMsg, setCycleMsg] = useState(null)
+  const { session, logout } = useAuth()
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -62,7 +67,7 @@ export function Layout({ children }) {
 
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {navItems.map(({ path, label, icon: Icon }) => (
+          {navItems.map(({ path, label, icon: Icon, hot }) => (
             <NavLink
               key={path}
               to={path}
@@ -77,26 +82,46 @@ export function Layout({ children }) {
             >
               <Icon size={16} />
               <span className="flex-1">{label}</span>
+              {hot && <span className="text-[9px] px-1.5 py-0.5 bg-red-500/20 text-red-300 border border-red-500/40 rounded font-semibold tracking-wider">NEW</span>}
               <ChevronRight size={12} className="opacity-40" />
             </NavLink>
           ))}
         </nav>
 
-        {/* System info */}
-        <div className="p-4 border-t border-gray-800">
+        {/* User / system info */}
+        <div className="p-4 border-t border-gray-800 space-y-3">
+          {session && !session.anonymous && session.user && (
+            <div className="flex items-center gap-2 text-xs">
+              <UserCircle2 size={18} className="text-slate-500 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-slate-200 truncate">{session.user.full_name || session.user.email}</div>
+                <div className="text-[10px] text-slate-500 truncate">
+                  {session.tenant?.name || 'Default tenant'} · {session.user.role}
+                </div>
+              </div>
+              <button onClick={logout} title="Sign out" className="text-slate-500 hover:text-red-400">
+                <LogOut size={14} />
+              </button>
+            </div>
+          )}
+          {session?.anonymous && (
+            <div className="text-[10px] text-slate-500 leading-snug">
+              <div className="text-slate-400 font-medium">Demo mode</div>
+              <div>{session.require_auth ? 'Sign in required' : 'Open access — set require_auth=true in production'}</div>
+            </div>
+          )}
           <div className="text-xs text-slate-500 space-y-1">
             <div className="flex justify-between">
               <span>Version</span>
               <span className="text-slate-400 mono">v1.0.0</span>
             </div>
             <div className="flex justify-between">
-              <span>AI Engine</span>
-              <span className="text-sky-400 mono">ACTIVE</span>
-            </div>
-            <div className="flex justify-between">
               <span>Cycle</span>
               <span className="text-slate-400 mono">60s</span>
             </div>
+            <a href="/welcome" className="block text-[10px] text-slate-600 hover:text-sky-400 pt-1">
+              Marketing page →
+            </a>
           </div>
         </div>
       </aside>
